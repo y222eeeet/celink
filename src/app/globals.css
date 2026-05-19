@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-noto-sans);
+  --font-serif: var(--font-cormorant);
+
+  --color-cream: #faf8f5;
+  --color-cream-dark: #f3efe8;
+  --color-ink: #1c1917;
+  --color-ink-muted: #57534e;
+  --color-rose: #c4a484;
+  --color-rose-deep: #a68b6a;
+  --color-blush: #e8ddd4;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* safe area for mobile bottom nav */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
