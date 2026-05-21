@@ -3,9 +3,15 @@ import SwiftUI
 struct EventDetailView: View {
     let eventId: String
     @Environment(\.dismiss) private var dismiss
+    @Bindable private var createdStore = CreatedEventsStore.shared
+    @State private var showEdit = false
 
     private var detail: EventDetail? {
-        MockData.eventDetail(id: eventId)
+        createdStore.detail(id: eventId) ?? MockData.eventDetail(id: eventId)
+    }
+
+    private var isOwnedEvent: Bool {
+        CreatedEventsStore.shared.isOwned(eventId: eventId)
     }
 
     var body: some View {
@@ -29,8 +35,24 @@ struct EventDetailView: View {
                         .foregroundStyle(CelinkTheme.primaryDeep)
                 }
             }
+
+            if isOwnedEvent {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showEdit = true
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(CelinkTheme.primaryDeep)
+                    }
+                    .accessibilityLabel("이벤트 수정")
+                }
+            }
         }
         .toolbarBackground(CelinkTheme.background, for: .navigationBar)
+        .navigationDestination(isPresented: $showEdit) {
+            EditEventView(eventId: eventId)
+        }
     }
 
     private func detailContent(_ detail: EventDetail) -> some View {
@@ -115,7 +137,7 @@ struct EventDetailView: View {
 
                 Spacer()
 
-                Text("\(event.hostName)님의 초대")
+                Text(isOwnedEvent ? "내가 주최한 이벤트" : "\(event.hostName)님의 초대")
                     .font(.caption)
                     .foregroundStyle(CelinkTheme.inkMuted)
             }

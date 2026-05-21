@@ -1,12 +1,14 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Bindable private var createdStore = CreatedEventsStore.shared
+
     private let events = MockData.invitedEvents
     private let photos = MockData.recentPhotos
     private let reminders = MockData.reminders
 
     private var upcomingEvents: [EventSummary] {
-        events
+        (createdStore.summaries + events)
             .filter(\.isUpcoming)
             .sorted { $0.date < $1.date }
     }
@@ -30,6 +32,7 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     header
 
+                    myCreatedSection(contentWidth: contentWidth)
                     remindersSection(contentWidth: contentWidth)
                     upcomingSection(contentWidth: contentWidth)
                     recentPhotosSection(contentWidth: contentWidth, cellSize: photoCell)
@@ -80,6 +83,24 @@ struct HomeView: View {
             content()
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func myCreatedSection(contentWidth: CGFloat) -> some View {
+        if !createdStore.summaries.isEmpty {
+            sectionBlock {
+                SectionHeaderView(title: "내가 만든 이벤트", trailing: "\(createdStore.summaries.count)개")
+                    .padding(.bottom, 12)
+
+                VStack(spacing: CelinkLayout.itemSpacing) {
+                    ForEach(createdStore.summaries) { event in
+                        eventLink(eventId: event.id) {
+                            EventCardView(event: event, style: .standard, contentWidth: contentWidth)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @ViewBuilder

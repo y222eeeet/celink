@@ -138,7 +138,8 @@ enum MockData {
     ]
 
     static func eventDetail(id: String) -> EventDetail? {
-        eventDetails.first { $0.id == id }
+        CreatedEventsStore.shared.detail(id: id)
+            ?? eventDetails.first { $0.id == id }
     }
 
     static let recentPhotos: [RecentPhoto] = [

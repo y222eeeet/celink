@@ -1,28 +1,37 @@
 import SwiftUI
 
 struct MainTabView: View {
+    private enum Tab: Hashable {
+        case home, create, profile
+    }
+
+    @State private var selectedTab: Tab = .home
+
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             NavigationStack {
                 HomeView()
                     .toolbar(.hidden, for: .navigationBar)
             }
+            .tag(Tab.home)
             .tabItem {
                 Label("홈", systemImage: "house.fill")
             }
 
             NavigationStack {
-                PlaceholderTabView(title: "이벤트 만들기", subtitle: "다음 단계에서 구현됩니다")
+                CreateEventView()
                     .toolbar(.hidden, for: .navigationBar)
             }
+            .tag(Tab.create)
             .tabItem {
                 Label("만들기", systemImage: "plus.circle")
             }
 
             NavigationStack {
-                PlaceholderTabView(title: "프로필", subtitle: "다음 단계에서 구현됩니다")
+                ProfileView()
                     .toolbar(.hidden, for: .navigationBar)
             }
+            .tag(Tab.profile)
             .tabItem {
                 Label("프로필", systemImage: "person.fill")
             }
