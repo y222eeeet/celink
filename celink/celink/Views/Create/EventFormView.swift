@@ -8,8 +8,7 @@ struct EventFormView: View {
     var onFinished: () -> Void
     var onCreateAnother: (() -> Void)?
     var onFormReset: (() -> Void)?
-
-    @State private var navigateToEventId: String?
+    var onViewCreatedEvent: ((String) -> Void)?
 
     var body: some View {
         GeometryReader { geometry in
@@ -48,11 +47,8 @@ struct EventFormView: View {
                     if viewModel.isEditMode {
                         onFinished()
                     } else if let eventId = viewModel.publishedEventId {
-                        viewModel.pendingResetOnNextAppear = false
-                        viewModel.reset()
-                        onFormReset?()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                            navigateToEventId = eventId
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            onViewCreatedEvent?(eventId)
                         }
                     }
                 },
@@ -65,14 +61,6 @@ struct EventFormView: View {
                 }
             )
             .presentationDetents([.medium])
-        }
-        .navigationDestination(isPresented: Binding(
-            get: { navigateToEventId != nil },
-            set: { if !$0 { navigateToEventId = nil } }
-        )) {
-            if let eventId = navigateToEventId {
-                EventDetailView(eventId: eventId)
-            }
         }
     }
 
@@ -175,30 +163,13 @@ struct EventFormView: View {
 
     private var basicsStep: some View {
         VStack(spacing: 20) {
-            CelinkFormField(label: "이벤트 제목", placeholder: "예: 민수 ♥ 지연 결혼식", text: $viewModel.title)
+            CelinkFormField(
+                label: "이벤트 제목",
+                placeholder: viewModel.titlePlaceholder,
+                text: $viewModel.title
+            )
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("날짜 및 시간")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(CelinkTheme.ink)
-
-                DatePicker(
-                    "",
-                    selection: $viewModel.date,
-                    displayedComponents: [.date, .hourAndMinute]
-                )
-                .datePickerStyle(.compact)
-                .labelsHidden()
-                .environment(\.locale, Locale(identifier: "ko_KR"))
-                .padding(14)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(CelinkTheme.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(CelinkTheme.border, lineWidth: 1)
-                }
-            }
+            CelinkDatePickerField(label: "날짜 및 시간", date: $viewModel.date)
 
             CelinkFormField(label: "장소", placeholder: "예: 서울 신라호텔", text: $viewModel.location)
 
@@ -319,12 +290,7 @@ struct EventFormView: View {
                         }
                     }
 
-                    DatePicker(
-                        "시간",
-                        selection: $item.time,
-                        displayedComponents: [.date, .hourAndMinute]
-                    )
-                    .environment(\.locale, Locale(identifier: "ko_KR"))
+                    CelinkDatePickerField(label: "날짜 및 시간", date: $item.time)
 
                     CelinkFormField(label: "항목", placeholder: "예: 예식", text: $item.title)
                     CelinkFormField(label: "메모 (선택)", placeholder: "예: 그랜드볼룸", text: $item.note)

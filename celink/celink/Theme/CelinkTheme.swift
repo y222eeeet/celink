@@ -35,6 +35,16 @@ enum EventLabels {
         }
     }
 
+    /// 제목 입력 필드 placeholder
+    static func titlePlaceholder(for type: EventType) -> String {
+        switch type {
+        case .wedding: "김민수와 김서연의 결혼식"
+        case .exhibition: "숙명여대 시각디자인과 졸업 전시"
+        case .performance: "숙명여대 무용과 라이브 공연"
+        case .dol: "규민이의 첫 번째 생일잔치"
+        }
+    }
+
     static func rsvpName(_ status: RSVPStatus) -> String {
         switch status {
         case .pending: "미응답"
@@ -54,6 +64,24 @@ enum EventLabels {
             (CelinkTheme.backgroundSecondary, CelinkTheme.inkMuted.opacity(0.8))
         case .maybe:
             (Color(red: 245 / 255, green: 240 / 255, blue: 255 / 255), Color(red: 107 / 255, green: 78 / 255, blue: 185 / 255))
+        }
+    }
+
+    static func rsvpIcon(_ status: RSVPStatus) -> String {
+        switch status {
+        case .pending: "questionmark.circle"
+        case .yes: "checkmark.circle.fill"
+        case .no: "xmark.circle.fill"
+        case .maybe: "clock.fill"
+        }
+    }
+
+    static func rsvpSubtitle(_ status: RSVPStatus) -> String {
+        switch status {
+        case .pending: "아직 응답하지 않았어요"
+        case .yes: "행사에 참석할 예정이에요"
+        case .no: "참석이 어려워요"
+        case .maybe: "일정 확인 후 다시 알려드릴게요"
         }
     }
 }

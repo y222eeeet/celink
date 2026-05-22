@@ -112,6 +112,68 @@ final class CreatedEventsStore {
         "/i/\(eventId)"
     }
 
+    func updateRSVP(eventId: String, status: RSVPStatus) {
+        guard let index = events.firstIndex(where: { $0.id == eventId }) else { return }
+        let existing = events[index]
+        let summary = EventSummary(
+            id: existing.summary.id,
+            type: existing.summary.type,
+            title: existing.summary.title,
+            date: existing.summary.date,
+            location: existing.summary.location,
+            coverImageURL: existing.summary.coverImageURL,
+            hostName: existing.summary.hostName,
+            rsvpStatus: status,
+            lastParticipatedAt: existing.summary.lastParticipatedAt,
+            isUpcoming: existing.summary.isUpcoming
+        )
+        events[index] = EventDetail(
+            summary: summary,
+            description: existing.description,
+            dressCode: existing.dressCode,
+            notice: existing.notice,
+            schedule: existing.schedule,
+            guestbook: existing.guestbook,
+            photoURLs: existing.photoURLs
+        )
+    }
+
+    @discardableResult
+    func addGuestbookEntry(eventId: String, entry: GuestbookEntry) -> Bool {
+        guard let index = events.firstIndex(where: { $0.id == eventId }) else { return false }
+        let existing = events[index]
+        var guestbook = existing.guestbook
+        guestbook.insert(entry, at: 0)
+        events[index] = EventDetail(
+            summary: existing.summary,
+            description: existing.description,
+            dressCode: existing.dressCode,
+            notice: existing.notice,
+            schedule: existing.schedule,
+            guestbook: guestbook,
+            photoURLs: existing.photoURLs
+        )
+        return true
+    }
+
+    @discardableResult
+    func addPhoto(eventId: String, url: URL) -> Bool {
+        guard let index = events.firstIndex(where: { $0.id == eventId }) else { return false }
+        let existing = events[index]
+        var photos = existing.photoURLs
+        photos.insert(url, at: 0)
+        events[index] = EventDetail(
+            summary: existing.summary,
+            description: existing.description,
+            dressCode: existing.dressCode,
+            notice: existing.notice,
+            schedule: existing.schedule,
+            guestbook: existing.guestbook,
+            photoURLs: photos
+        )
+        return true
+    }
+
     private func buildDetail(
         eventId: String,
         type: EventType,

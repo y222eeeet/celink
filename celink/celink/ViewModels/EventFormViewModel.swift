@@ -13,7 +13,7 @@ final class EventFormViewModel {
     var step: CreateEventStep = .type
     var selectedType: EventType?
     var title = ""
-    var date = Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date()
+    var date: Date
     var location = ""
     var description = ""
     var dressCode = ""
@@ -82,6 +82,9 @@ final class EventFormViewModel {
 
     init(mode: EventFormMode = .create) {
         self.mode = mode
+        self.date = DateRounding.toFiveMinuteInterval(
+            Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date()
+        )
         if case .edit(let eventId) = mode {
             loadForEdit(eventId: eventId)
         }
@@ -89,6 +92,13 @@ final class EventFormViewModel {
 
     func selectType(_ type: EventType) {
         selectedType = type
+    }
+
+    var titlePlaceholder: String {
+        guard let selectedType else {
+            return "이벤트 제목을 입력해 주세요"
+        }
+        return EventLabels.titlePlaceholder(for: selectedType)
     }
 
     func goNext() {
@@ -101,7 +111,12 @@ final class EventFormViewModel {
 
         if let next = CreateEventStep(rawValue: step.rawValue + 1) {
             if next == .schedule, scheduleItems.isEmpty, let selectedType {
-                scheduleItems = [EditableScheduleItem(time: date, title: defaultScheduleTitle(for: selectedType))]
+                scheduleItems = [
+                    EditableScheduleItem(
+                        time: DateRounding.toFiveMinuteInterval(date),
+                        title: defaultScheduleTitle(for: selectedType)
+                    ),
+                ]
             }
             step = next
         }
@@ -113,7 +128,7 @@ final class EventFormViewModel {
     }
 
     func addScheduleItem() {
-        scheduleItems.append(EditableScheduleItem(time: date))
+        scheduleItems.append(EditableScheduleItem(time: DateRounding.toFiveMinuteInterval(date)))
     }
 
     func removeScheduleItem(id: String) {
@@ -135,7 +150,9 @@ final class EventFormViewModel {
         step = .type
         selectedType = nil
         title = ""
-        date = Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date()
+        date = DateRounding.toFiveMinuteInterval(
+            Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date()
+        )
         location = ""
         description = ""
         dressCode = ""
@@ -164,7 +181,7 @@ final class EventFormViewModel {
         let event = detail.summary
         selectedType = event.type
         title = event.title
-        date = event.date
+        date = DateRounding.toFiveMinuteInterval(event.date)
         location = event.location
         description = detail.description
         dressCode = detail.dressCode ?? ""
@@ -175,7 +192,7 @@ final class EventFormViewModel {
         scheduleItems = detail.schedule.map {
             EditableScheduleItem(
                 id: $0.id,
-                time: $0.time,
+                time: DateRounding.toFiveMinuteInterval($0.time),
                 title: $0.title,
                 note: $0.note ?? ""
             )
@@ -185,6 +202,13 @@ final class EventFormViewModel {
 
     private func submit() {
         guard let selectedType else { return }
+
+        date = DateRounding.toFiveMinuteInterval(date)
+        scheduleItems = scheduleItems.map { item in
+            var item = item
+            item.time = DateRounding.toFiveMinuteInterval(item.time)
+            return item
+        }
 
         switch mode {
         case .create:

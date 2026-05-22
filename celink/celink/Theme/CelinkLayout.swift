@@ -27,4 +27,15 @@ enum CelinkLayout {
     static func featuredCardHeight(contentWidth: CGFloat) -> CGFloat {
         contentWidth * 5 / 4
     }
+
+    /// 이벤트 상세 히어로 — 화면 너비 비율 (기종별 동일 비율)
+    static func eventDetailHeroHeight(screenWidth: CGFloat) -> CGFloat {
+        min(max(screenWidth * 0.52, 200), 300)
+    }
+
+    /// 액션 칩 3열 그리드
+    static func eventDetailActionChipWidth(contentWidth: CGFloat) -> CGFloat {
+        let gaps = itemSpacing * 2
+        return floor((contentWidth - gaps) / 3)
+    }
 }
