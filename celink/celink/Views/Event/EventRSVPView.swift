@@ -6,13 +6,31 @@ struct EventRSVPView: View {
     @Bindable private var interactionStore = EventInteractionStore.shared
 
     @State private var selectedStatus: RSVPStatus = .pending
-    @State private var guestCount = 1
-    @State private var note = ""
+    @State private var lateArrival = Date()
     @State private var didLoad = false
     @State private var showSavedToast = false
 
     private var detail: EventDetail? {
         interactionStore.eventDetail(id: eventId)
+    }
+
+    private func eventStartTime(for detail: EventDetail) -> Date {
+        DateRounding.toFiveMinuteInterval(detail.summary.date)
+    }
+
+    private var lateArrivalBinding: Binding<Date> {
+        Binding(
+            get: { lateArrival },
+            set: { newValue in
+                guard let detail else {
+                    lateArrival = DateRounding.toFiveMinuteInterval(newValue)
+                    return
+                }
+                let eventStart = eventStartTime(for: detail)
+                let merged = DateRounding.mergeTime(from: newValue, keepingDayFrom: eventStart)
+                lateArrival = max(DateRounding.toFiveMinuteInterval(merged), eventStart)
+            }
+        )
     }
 
     var body: some View {
@@ -54,11 +72,9 @@ struct EventRSVPView: View {
         return ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
                 EventSubpageHeader(
-                    title: "참석 여부",
+                    title: "참여여부 회신",
                     eventTitle: event.title,
-                    subtitle: isOwnedEvent
-                        ? "게스트들의 응답은 추후 집계됩니다"
-                        : "\(event.hostName)님께 참석 여부를 알려주세요"
+                    subtitle: "\(event.hostName)님께 참여 여부를 알려주세요"
                 )
 
                 EventInfoMiniCard(
@@ -77,80 +93,57 @@ struct EventRSVPView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("응답 선택")
+                    Text("회신 선택")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(CelinkTheme.ink)
 
                     VStack(spacing: 10) {
                         rsvpOption(.yes)
-                        rsvpOption(.maybe)
                         rsvpOption(.no)
+                        rsvpOption(.maybe)
+                        rsvpOption(.pending)
                     }
                 }
 
-                if selectedStatus == .yes {
+                if selectedStatus == .maybe {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("동반 인원 (본인 포함)")
+                        Text("몇 시에 참여 가능한가요?")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(CelinkTheme.ink)
 
-                        HStack {
-                            Button {
-                                if guestCount > 1 { guestCount -= 1 }
-                            } label: {
-                                Image(systemName: "minus.circle.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(guestCount > 1 ? CelinkTheme.primaryDeep : CelinkTheme.border)
-                            }
-                            .disabled(guestCount <= 1)
+                        Text("이벤트 시작 시간 이후로 5분 단위 선택")
+                            .font(.caption)
+                            .foregroundStyle(CelinkTheme.inkMuted)
 
-                            Text("\(guestCount)명")
-                                .font(.title3.weight(.medium))
-                                .foregroundStyle(CelinkTheme.ink)
-                                .frame(minWidth: 64)
+                        FiveMinuteTimeWheelPicker(
+                            date: lateArrivalBinding,
+                            minimumDate: eventStartTime(for: detail)
+                        )
+                        .frame(maxWidth: .infinity)
+                            .frame(height: 180)
+                            .padding(.horizontal, 6)
+                            .padding(.top, 6)
+                            .padding(.bottom, 2)
+                            .background(CelinkTheme.backgroundSecondary.opacity(0.45))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                            Button {
-                                if guestCount < 10 { guestCount += 1 }
-                            } label: {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(guestCount < 10 ? CelinkTheme.primaryDeep : CelinkTheme.border)
-                            }
-                            .disabled(guestCount >= 10)
-
-                            Spacer()
-                        }
-                        .padding(16)
-                        .background(CelinkTheme.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(CelinkTheme.border, lineWidth: 1)
-                        }
+                        Text("선택된 참여 시각: \(EventFormatting.eventDate(lateArrival))")
+                            .font(.caption)
+                            .foregroundStyle(CelinkTheme.primaryDeep)
+                            .padding(.horizontal, 4)
+                    }
+                    .padding(14)
+                    .background(CelinkTheme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(CelinkTheme.border, lineWidth: 1)
                     }
                 }
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("호스트에게 메시지 (선택)")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(CelinkTheme.ink)
-
-                    TextField("전달할 메시지를 입력해 주세요", text: $note, axis: .vertical)
-                        .lineLimit(3...5)
-                        .font(.body)
-                        .foregroundStyle(CelinkTheme.ink)
-                        .padding(14)
-                        .background(CelinkTheme.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(CelinkTheme.border, lineWidth: 1)
-                        }
-                }
-
                 CelinkPrimaryButton(
-                    title: "응답 저장",
-                    disabled: selectedStatus == .pending
+                    title: "회신 저장",
+                    disabled: false
                 ) {
                     saveRSVP()
                 }
@@ -161,10 +154,6 @@ struct EventRSVPView: View {
         }
     }
 
-    private var isOwnedEvent: Bool {
-        CreatedEventsStore.shared.isOwned(eventId: eventId)
-    }
-
     private func loadIfNeeded(from detail: EventDetail?) {
         guard !didLoad, let detail else { return }
         let resolved = interactionStore.rsvpStatus(
@@ -172,8 +161,12 @@ struct EventRSVPView: View {
             default: detail.summary.rsvpStatus
         )
         selectedStatus = resolved
-        guestCount = interactionStore.guestCount(for: eventId)
-        note = interactionStore.rsvpNote(for: eventId)
+        let eventStart = eventStartTime(for: detail)
+        if let savedLate = interactionStore.lateArrivalTime(for: eventId) {
+            lateArrival = max(DateRounding.toFiveMinuteInterval(savedLate), eventStart)
+        } else {
+            lateArrival = eventStart
+        }
         didLoad = true
     }
 
@@ -183,6 +176,9 @@ struct EventRSVPView: View {
 
         return Button {
             selectedStatus = status
+            if status == .maybe, let detail {
+                lateArrival = eventStartTime(for: detail)
+            }
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: EventLabels.rsvpIcon(status))
@@ -219,11 +215,14 @@ struct EventRSVPView: View {
     }
 
     private func saveRSVP() {
+        let lateTime: Date? = {
+            guard selectedStatus == .maybe, let detail else { return nil }
+            return max(lateArrival, eventStartTime(for: detail))
+        }()
         interactionStore.saveRSVP(
             eventId: eventId,
             status: selectedStatus,
-            guestCount: guestCount,
-            note: note
+            lateArrivalTime: lateTime
         )
         showSavedToast = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {

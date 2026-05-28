@@ -4,6 +4,9 @@ enum EventDetailDestination: Hashable {
     case rsvp
     case guestbook
     case photoAlbum
+    case giftTransfer
+    case ledger
+    case participants
 }
 
 struct EventSubpageHeader: View {

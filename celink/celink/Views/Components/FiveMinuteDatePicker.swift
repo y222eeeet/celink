@@ -5,6 +5,7 @@ import UIKit
 
 struct FiveMinuteTimeWheelPicker: UIViewRepresentable {
     @Binding var date: Date
+    var minimumDate: Date?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -16,7 +17,10 @@ struct FiveMinuteTimeWheelPicker: UIViewRepresentable {
         picker.preferredDatePickerStyle = .wheels
         picker.minuteInterval = 5
         picker.locale = Locale(identifier: "ko_KR")
-        picker.date = DateRounding.toFiveMinuteInterval(date)
+        if let minimumDate {
+            picker.minimumDate = DateRounding.toFiveMinuteInterval(minimumDate)
+        }
+        picker.date = clampedDate(date)
         picker.addTarget(
             context.coordinator,
             action: #selector(Coordinator.valueChanged(_:)),
@@ -27,10 +31,21 @@ struct FiveMinuteTimeWheelPicker: UIViewRepresentable {
 
     func updateUIView(_ uiView: UIDatePicker, context: Context) {
         uiView.minuteInterval = 5
-        let rounded = DateRounding.toFiveMinuteInterval(date)
-        if abs(uiView.date.timeIntervalSince(rounded)) > 60 {
-            uiView.date = rounded
+        if let minimumDate {
+            uiView.minimumDate = DateRounding.toFiveMinuteInterval(minimumDate)
+        } else {
+            uiView.minimumDate = nil
         }
+        let clamped = clampedDate(date)
+        if abs(uiView.date.timeIntervalSince(clamped)) > 60 {
+            uiView.date = clamped
+        }
+    }
+
+    private func clampedDate(_ value: Date) -> Date {
+        let rounded = DateRounding.toFiveMinuteInterval(value)
+        guard let minimumDate else { return rounded }
+        return max(rounded, DateRounding.toFiveMinuteInterval(minimumDate))
     }
 
     final class Coordinator: NSObject {
@@ -41,10 +56,11 @@ struct FiveMinuteTimeWheelPicker: UIViewRepresentable {
         }
 
         @objc func valueChanged(_ sender: UIDatePicker) {
-            parent.date = DateRounding.mergeTime(
+            let merged = DateRounding.mergeTime(
                 from: sender.date,
                 keepingDayFrom: parent.date
             )
+            parent.date = parent.clampedDate(merged)
         }
     }
 }

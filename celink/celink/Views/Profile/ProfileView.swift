@@ -2,9 +2,30 @@ import SwiftUI
 
 struct ProfileView: View {
     @Bindable private var createdStore = CreatedEventsStore.shared
+    @Bindable private var interactionStore = EventInteractionStore.shared
 
     private var joinedEvents: [EventSummary] {
-        MockData.invitedEvents.filter { !createdStore.isOwned(eventId: $0.id) }
+        MockData.invitedEvents
+            .filter { !createdStore.isOwned(eventId: $0.id) }
+            .map { event in
+                let resolvedStatus = interactionStore.rsvpStatus(for: event.id, default: event.rsvpStatus)
+                return EventSummary(
+                    id: event.id,
+                    type: event.type,
+                    title: event.title,
+                    date: event.date,
+                    location: event.location,
+                    coverImageURL: event.coverImageURL,
+                    hostName: event.hostName,
+                    rsvpStatus: resolvedStatus,
+                    lastParticipatedAt: event.lastParticipatedAt,
+                    isUpcoming: event.isUpcoming
+                )
+            }
+    }
+
+    private var totalLedgerAmount: Int {
+        interactionStore.currentLedgerAmount()
     }
 
     var body: some View {
@@ -14,6 +35,7 @@ struct ProfileView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
                     header
+                    ledgerSummarySection
 
                     if !createdStore.summaries.isEmpty {
                         eventSection(
@@ -47,6 +69,14 @@ struct ProfileView: View {
         .navigationDestination(for: String.self) { eventId in
             EventDetailView(eventId: eventId)
         }
+        .navigationDestination(for: ProfileDestination.self) { destination in
+            switch destination {
+            case .ledgerOverview:
+                ProfileLedgerOverviewView()
+            case .withdraw:
+                ProfileWithdrawView()
+            }
+        }
     }
 
     private var header: some View {
@@ -63,6 +93,73 @@ struct ProfileView: View {
         .padding(.horizontal, CelinkLayout.horizontalPadding)
         .padding(.top, 8)
         .padding(.bottom, 24)
+    }
+
+    private var ledgerSummarySection: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("장부 금액")
+                    .font(.subheadline)
+                    .foregroundStyle(CelinkTheme.inkMuted)
+                Text(formatAmount(totalLedgerAmount))
+                    .font(.system(size: 38, weight: .semibold, design: .rounded))
+                    .foregroundStyle(CelinkTheme.primaryDeep)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 20)
+            .background(CelinkTheme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay {
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(CelinkTheme.border, lineWidth: 1)
+            }
+
+            HStack(spacing: 10) {
+                NavigationLink(value: ProfileDestination.ledgerOverview) {
+                    Text("장부 열기")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(CelinkTheme.primaryDeep)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink(value: ProfileDestination.withdraw) {
+                    Text("출금하기")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(CelinkTheme.primaryDeep)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(CelinkTheme.backgroundSecondary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(CelinkTheme.border, lineWidth: 1)
+                        }
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 4)
+            .padding(.bottom, 4)
+        }
+        .padding(14)
+        .background(
+            LinearGradient(
+                colors: [CelinkTheme.surface, CelinkTheme.backgroundSecondary.opacity(0.9)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(CelinkTheme.primary.opacity(0.35), lineWidth: 1.2)
+        }
+        .padding(.horizontal, CelinkLayout.horizontalPadding)
+        .padding(.bottom, 20)
     }
 
     private func eventSection(
@@ -103,6 +200,18 @@ struct ProfileView: View {
         .frame(maxWidth: .infinity)
         .padding(.top, 40)
     }
+
+    private func formatAmount(_ value: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        let text = formatter.string(from: NSNumber(value: value)) ?? "\(value)"
+        return "\(text)원"
+    }
+}
+
+private enum ProfileDestination: Hashable {
+    case ledgerOverview
+    case withdraw
 }
 
 #Preview {

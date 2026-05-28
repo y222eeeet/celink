@@ -12,7 +12,9 @@ final class CreatedEventsStore {
         events.map(\.summary).sorted { $0.date < $1.date }
     }
 
-    private init() {}
+    private init() {
+        seedOwnedMockEventIfNeeded()
+    }
 
     func isOwned(eventId: String) -> Bool {
         events.contains { $0.id == eventId }
@@ -174,6 +176,25 @@ final class CreatedEventsStore {
         return true
     }
 
+    @discardableResult
+    func removePhoto(eventId: String, url: URL) -> Bool {
+        guard let index = events.firstIndex(where: { $0.id == eventId }) else { return false }
+        let existing = events[index]
+        let filtered = existing.photoURLs.filter { $0 != url }
+        guard filtered.count != existing.photoURLs.count else { return false }
+
+        events[index] = EventDetail(
+            summary: existing.summary,
+            description: existing.description,
+            dressCode: existing.dressCode,
+            notice: existing.notice,
+            schedule: existing.schedule,
+            guestbook: existing.guestbook,
+            photoURLs: filtered
+        )
+        return true
+    }
+
     private func buildDetail(
         eventId: String,
         type: EventType,
@@ -271,5 +292,42 @@ final class CreatedEventsStore {
         } catch {
             return nil
         }
+    }
+
+    private func seedOwnedMockEventIfNeeded() {
+        guard events.isEmpty else { return }
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        let parse: (String) -> Date = { formatter.date(from: $0) ?? Date() }
+
+        let birthday = EventDetail(
+            summary: EventSummary(
+                id: "owned-birthday-1",
+                type: .dol,
+                title: "지우의 생일파티",
+                date: parse("2026-08-16T19:00:00"),
+                location: "성수 루프탑 라운지",
+                coverImageURL: URL(string: "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=800&q=80")!,
+                hostName: MockData.userName,
+                rsvpStatus: .yes,
+                lastParticipatedAt: nil,
+                isUpcoming: true
+            ),
+            description: "소중한 사람들과 저녁 생일파티를 함께하고 싶어요. 편하게 와서 즐겨주세요!",
+            dressCode: "캐주얼",
+            notice: "주차는 건물 지하 유료주차장을 이용해 주세요.",
+            schedule: [
+                ScheduleItem(id: "ob-1", time: parse("2026-08-16T19:00:00"), title: "웰컴 & 인사", note: nil),
+                ScheduleItem(id: "ob-2", time: parse("2026-08-16T19:30:00"), title: "케이크 커팅", note: nil),
+                ScheduleItem(id: "ob-3", time: parse("2026-08-16T19:50:00"), title: "단체사진 촬영", note: nil),
+            ],
+            guestbook: [],
+            photoURLs: []
+        )
+
+        events = [birthday]
     }
 }

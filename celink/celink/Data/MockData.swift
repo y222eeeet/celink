@@ -9,8 +9,23 @@ enum MockData {
         return f
     }()
 
+    /// "2026-05-25T12:00:00" 같이 timezone 없는 더미 문자열 파싱용
+    private static let localFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "ko_KR")
+        f.timeZone = TimeZone.current
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        return f
+    }()
+
     private static func date(_ string: String) -> Date {
-        formatter.date(from: string) ?? Date()
+        if let isoDate = formatter.date(from: string) {
+            return isoDate
+        }
+        if let localDate = localFormatter.date(from: string) {
+            return localDate
+        }
+        return Date()
     }
 
     private static func url(_ string: String) -> URL {
@@ -25,7 +40,7 @@ enum MockData {
                 id: "evt-1",
                 type: .wedding,
                 title: "민수 ♥ 지연 결혼식",
-                date: date("2026-06-14T11:00:00"),
+                date: date("2026-06-14T10:30:00"),
                 location: "서울 신라호텔",
                 coverImageURL: url("https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80"),
                 hostName: "김민수",
@@ -37,10 +52,12 @@ enum MockData {
             dressCode: "포멀 · 남색·베이지 계열 권장",
             notice: "화환은 정중히 사양합니다. 식사 RSVP에 동반 인원을 꼭 적어 주세요.",
             schedule: [
-                ScheduleItem(id: "s1-1", time: date("2026-06-14T11:00:00"), title: "하객 입장", note: nil),
-                ScheduleItem(id: "s1-2", time: date("2026-06-14T11:30:00"), title: "웨딩 촬영", note: "로비 A홀"),
-                ScheduleItem(id: "s1-3", time: date("2026-06-14T12:00:00"), title: "예식", note: "그랜드볼룸"),
-                ScheduleItem(id: "s1-4", time: date("2026-06-14T13:00:00"), title: "피로연", note: nil),
+                ScheduleItem(id: "s1-1", time: date("2026-06-14T10:30:00"), title: "하객 입장", note: nil),
+                ScheduleItem(id: "s1-2", time: date("2026-06-14T11:00:00"), title: "본식 시작", note: nil),
+                ScheduleItem(id: "s1-3", time: date("2026-06-14T11:10:00"), title: "신랑 입장", note: nil),
+                ScheduleItem(id: "s1-4", time: date("2026-06-14T11:20:00"), title: "신부 입장", note: nil),
+                ScheduleItem(id: "s1-5", time: date("2026-06-14T11:30:00"), title: "신랑신부 행진", note: nil),
+                ScheduleItem(id: "s1-6", time: date("2026-06-14T11:40:00"), title: "하객사진 촬영", note: nil),
             ],
             guestbook: [
                 GuestbookEntry(id: "g1-1", authorName: "박지훈", content: "결혼 진심으로 축하해! 행복만 가득하길.", isPrivate: false, createdAt: date("2026-05-10T14:30:00")),
@@ -58,7 +75,7 @@ enum MockData {
                 id: "evt-2",
                 type: .exhibition,
                 title: "졸업 전시 — 빛의 결",
-                date: date("2026-05-25T14:00:00"),
+                date: date("2026-05-25T12:00:00"),
                 location: "홍익대학교 현대미술관",
                 coverImageURL: url("https://images.unsplash.com/photo-1460661414737-f969d6ae3b70?w=800&q=80"),
                 hostName: "이하은",
@@ -70,9 +87,9 @@ enum MockData {
             dressCode: nil,
             notice: "전시장 내 플래시 촬영은 삼가 주세요.",
             schedule: [
-                ScheduleItem(id: "s2-1", time: date("2026-05-25T14:00:00"), title: "오프닝 리셉션", note: "1층 로비"),
-                ScheduleItem(id: "s2-2", time: date("2026-05-25T15:00:00"), title: "작가 토크", note: "세미나실"),
-                ScheduleItem(id: "s2-3", time: date("2026-05-25T17:00:00"), title: "자유 관람", note: "2층 전시실"),
+                ScheduleItem(id: "s2-1", time: date("2026-05-25T12:10:00"), title: "오프닝 이벤트", note: "1층 로비"),
+                ScheduleItem(id: "s2-2", time: date("2026-05-25T12:20:00"), title: "작가 토크", note: "세미나실"),
+                ScheduleItem(id: "s2-3", time: date("2026-05-25T13:00:00"), title: "자유 관람", note: "2층 전시실"),
             ],
             guestbook: [
                 GuestbookEntry(id: "g2-1", authorName: "교수님", content: "졸업 축하한다. 전시 너무 기대돼.", isPrivate: false, createdAt: date("2026-05-12T18:00:00")),
@@ -88,7 +105,7 @@ enum MockData {
                 id: "evt-3",
                 type: .dol,
                 title: "도윤이 첫 번째 생일",
-                date: date("2026-03-08T12:00:00"),
+                date: date("2026-03-08T11:30:00"),
                 location: "판교 파티룸",
                 coverImageURL: url("https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80"),
                 hostName: "박서연",
@@ -100,9 +117,9 @@ enum MockData {
             dressCode: "캐주얼",
             notice: nil,
             schedule: [
-                ScheduleItem(id: "s3-1", time: date("2026-03-08T12:00:00"), title: "입장 · 포토존", note: nil),
-                ScheduleItem(id: "s3-2", time: date("2026-03-08T12:30:00"), title: "돌잔치 식순", note: nil),
-                ScheduleItem(id: "s3-3", time: date("2026-03-08T14:00:00"), title: "케이크 커팅", note: nil),
+                ScheduleItem(id: "s3-1", time: date("2026-03-08T11:30:00"), title: "입장 · 포토존", note: nil),
+                ScheduleItem(id: "s3-2", time: date("2026-03-08T12:00:00"), title: "돌잡이", note: nil),
+                ScheduleItem(id: "s3-3", time: date("2026-03-08T12:20:00"), title: "케이크 커팅", note: nil),
             ],
             guestbook: [
                 GuestbookEntry(id: "g3-1", authorName: "이모", content: "도윤아 생일 축하해! 건강하게 자라렴.", isPrivate: false, createdAt: date("2026-03-08T16:45:00")),
@@ -116,7 +133,7 @@ enum MockData {
                 id: "evt-4",
                 type: .performance,
                 title: "봄밤 재즈 콘서트",
-                date: date("2026-07-20T19:30:00"),
+                date: date("2026-07-20T20:00:00"),
                 location: "블루스퀘어",
                 coverImageURL: url("https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80"),
                 hostName: "최예린",
@@ -128,9 +145,9 @@ enum MockData {
             dressCode: "스마트 캐주얼",
             notice: "공연 시작 30분 전 착석을 권장합니다.",
             schedule: [
-                ScheduleItem(id: "s4-1", time: date("2026-07-20T19:00:00"), title: "입장", note: nil),
-                ScheduleItem(id: "s4-2", time: date("2026-07-20T19:30:00"), title: "1부 공연", note: nil),
-                ScheduleItem(id: "s4-3", time: date("2026-07-20T20:30:00"), title: "2부 · 앵콜", note: nil),
+                ScheduleItem(id: "s4-1", time: date("2026-07-20T19:40:00"), title: "입장 시작", note: nil),
+                ScheduleItem(id: "s4-2", time: date("2026-07-20T20:00:00"), title: "공연 1부 시작", note: nil),
+                ScheduleItem(id: "s4-3", time: date("2026-07-20T20:40:00"), title: "공연 2부 시작", note: nil),
             ],
             guestbook: [],
             photoURLs: []

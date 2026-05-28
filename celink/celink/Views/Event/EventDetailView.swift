@@ -37,7 +37,13 @@ struct EventDetailView: View {
             case .guestbook:
                 EventGuestbookView(eventId: eventId)
             case .photoAlbum:
-                EventPhotoAlbumView(eventId: eventId)
+                EventPhotoAlbumView(eventId: eventId, isOwnerMode: isOwnedEvent)
+            case .giftTransfer:
+                EventGiftTransferView(eventId: eventId)
+            case .ledger:
+                EventLedgerView(eventId: eventId)
+            case .participants:
+                EventParticipantsManageView(eventId: eventId)
             }
         }
     }
@@ -48,8 +54,12 @@ struct EventDetailView: View {
         return GeometryReader { geometry in
             let screenWidth = geometry.size.width
             let topInset = geometry.safeAreaInsets.top
+            let bottomInset = geometry.safeAreaInsets.bottom
             let contentWidth = CelinkLayout.contentWidth(in: screenWidth)
             let heroHeight = CelinkLayout.eventDetailHeroHeight(screenWidth: screenWidth) + topInset
+            let ctaGapFromTabBar: CGFloat = -4
+            let ctaHeight: CGFloat = 56
+            let ctaInset = bottomInset + ctaGapFromTabBar + ctaHeight
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
@@ -62,7 +72,7 @@ struct EventDetailView: View {
 
                     infoSection(detail: detail, contentWidth: contentWidth)
 
-                    actionButtons(contentWidth: contentWidth)
+                    actionButtons(contentWidth: contentWidth, event: event)
 
                     if !detail.schedule.isEmpty {
                         scheduleSection(detail.schedule, contentWidth: contentWidth)
@@ -70,12 +80,12 @@ struct EventDetailView: View {
                     if !interactionStore.guestbookEntries(for: eventId).isEmpty {
                         guestbookSection(contentWidth: contentWidth)
                     }
-                    if !interactionStore.photoURLs(for: eventId).isEmpty {
+                    if !interactionStore.photoURLs(for: eventId, includePrivate: isOwnedEvent).isEmpty {
                         photosSection(contentWidth: contentWidth)
                     }
                 }
                 .frame(width: screenWidth, alignment: .leading)
-                .padding(.bottom, CelinkLayout.scrollBottomInset)
+                .padding(.bottom, max(8, ctaInset))
             }
             .frame(width: screenWidth, height: geometry.size.height)
             .scrollIndicators(.hidden)
@@ -84,6 +94,10 @@ struct EventDetailView: View {
                 detailNavBar
                     .padding(.horizontal, CelinkLayout.horizontalPadding)
                     .padding(.bottom, 6)
+            }
+            .overlay(alignment: .bottom) {
+                detailCTA
+                    .padding(.bottom, bottomInset + ctaGapFromTabBar)
             }
         }
     }
@@ -103,6 +117,41 @@ struct EventDetailView: View {
             }
         }
         .frame(height: 44)
+    }
+
+    private var detailCTA: some View {
+        HStack(spacing: 10) {
+            NavigationLink(value: isOwnedEvent ? EventDetailDestination.ledger : EventDetailDestination.rsvp) {
+                Text(isOwnedEvent ? "장부 확인하기" : "참여여부 회신")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .background(CelinkTheme.primaryDeep)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink(value: isOwnedEvent ? EventDetailDestination.participants : EventDetailDestination.giftTransfer) {
+                Text(isOwnedEvent ? "참여자 관리하기" : "축하하기")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(CelinkTheme.primaryDeep)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .background(CelinkTheme.backgroundSecondary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(CelinkTheme.border, lineWidth: 1)
+                    }
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, CelinkLayout.horizontalPadding)
+        .padding(.top, 4)
+        .padding(.bottom, 0)
+        .background(CelinkTheme.background)
     }
 
     private func floatingNavButton(
@@ -249,34 +298,132 @@ struct EventDetailView: View {
         }
     }
 
-    private func actionButtons(contentWidth: CGFloat) -> some View {
-        let chipWidth = CelinkLayout.eventDetailActionChipWidth(contentWidth: contentWidth)
-        let spacing = CelinkLayout.itemSpacing
+    @ViewBuilder
+    private func actionButtons(contentWidth: CGFloat, event: EventSummary) -> some View {
+        if isOwnedEvent {
+            let buttonWidth = floor((contentWidth - CelinkLayout.itemSpacing) / 2)
+            HStack(spacing: CelinkLayout.itemSpacing) {
+                NavigationLink(value: EventDetailDestination.guestbook) {
+                    secondaryActionButton(
+                        title: "방명록 관리",
+                        icon: "text.quote",
+                        width: buttonWidth
+                    )
+                }
+                .buttonStyle(.plain)
 
-        return HStack(spacing: spacing) {
-            NavigationLink(value: EventDetailDestination.rsvp) {
-                actionChip(title: "RSVP", icon: "checkmark.circle", width: chipWidth)
+                NavigationLink(value: EventDetailDestination.photoAlbum) {
+                    secondaryActionButton(
+                        title: "공유앨범 관리",
+                        icon: "photo.on.rectangle.angled",
+                        width: buttonWidth
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
+            .frame(width: contentWidth)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, CelinkLayout.horizontalPadding)
+            .padding(.vertical, 4)
+        } else {
+            let status = resolvedRSVPStatus(for: event)
+            let needsRSVPHighlight = status == .pending
+            let secondaryWidth = floor((contentWidth - CelinkLayout.itemSpacing) / 2)
 
-            NavigationLink(value: EventDetailDestination.guestbook) {
-                actionChip(title: "방명록", icon: "text.quote", width: chipWidth)
-            }
-            .buttonStyle(.plain)
+            VStack(spacing: 10) {
+                NavigationLink(value: EventDetailDestination.rsvp) {
+                    rsvpActionButton(status: status, width: contentWidth)
+                }
+                .buttonStyle(.plain)
+                .padding(needsRSVPHighlight ? 3 : 0)
+                .background {
+                    if needsRSVPHighlight {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 1, green: 0.32, blue: 0.28),
+                                        Color(red: 1, green: 0.55, blue: 0.38),
+                                        Color(red: 0.92, green: 0.18, blue: 0.24),
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .shadow(color: Color.red.opacity(0.35), radius: 10, y: 4)
+                    }
+                }
 
-            NavigationLink(value: EventDetailDestination.photoAlbum) {
-                actionChip(title: "사진 앨범", icon: "photo.on.rectangle.angled", width: chipWidth)
+                HStack(spacing: CelinkLayout.itemSpacing) {
+                    NavigationLink(value: EventDetailDestination.guestbook) {
+                        secondaryActionButton(
+                            title: "방명록",
+                            icon: "text.quote",
+                            width: secondaryWidth
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink(value: EventDetailDestination.photoAlbum) {
+                        secondaryActionButton(
+                            title: "공유 앨범",
+                            icon: "photo.on.rectangle.angled",
+                            width: secondaryWidth
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .buttonStyle(.plain)
+            .frame(width: contentWidth)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, CelinkLayout.horizontalPadding)
+            .padding(.vertical, 4)
         }
-        .frame(width: contentWidth)
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, CelinkLayout.horizontalPadding)
-        .padding(.vertical, 4)
     }
 
-    private func actionChip(title: String, icon: String, width: CGFloat) -> some View {
-        VStack(spacing: 6) {
+    private func rsvpActionButton(status: RSVPStatus, width: CGFloat) -> some View {
+        let colors = EventLabels.rsvpColors(status)
+
+        return HStack(spacing: 14) {
+            Image(systemName: EventLabels.rsvpIcon(status))
+                .font(.title2)
+                .foregroundStyle(colors.foreground)
+                .frame(width: 48, height: 48)
+                .background(colors.background)
+                .clipShape(Circle())
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("RSVP")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(CelinkTheme.ink)
+
+                Text(status == .pending ? "참여 여부를 알려주세요" : EventLabels.rsvpName(status))
+                    .font(.caption)
+                    .foregroundStyle(status == .pending ? Color.red.opacity(0.85) : CelinkTheme.inkMuted)
+            }
+
+            Spacer(minLength: 0)
+
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(CelinkTheme.inkMuted)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .frame(width: width, alignment: .leading)
+        .background(CelinkTheme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(
+                    status == .pending ? Color.clear : CelinkTheme.border,
+                    lineWidth: 1
+                )
+        }
+    }
+
+    private func secondaryActionButton(title: String, icon: String, width: CGFloat) -> some View {
+        VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.body)
                 .foregroundStyle(CelinkTheme.primaryDeep)
@@ -285,13 +432,13 @@ struct EventDetailView: View {
                 .clipShape(Circle())
 
             Text(title)
-                .font(.caption2.weight(.medium))
+                .font(.caption.weight(.medium))
                 .foregroundStyle(CelinkTheme.ink)
                 .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .minimumScaleFactor(0.85)
         }
         .frame(width: width)
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
         .background(CelinkTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay {
@@ -319,13 +466,19 @@ struct EventDetailView: View {
                         .frame(width: 10)
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(scheduleTime(item.time))
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(CelinkTheme.primaryDeep)
+                            HStack(spacing: 8) {
+                                Text(scheduleTime(item.time))
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(CelinkTheme.primaryDeep)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(CelinkTheme.backgroundSecondary)
+                                    .clipShape(Capsule())
 
-                            Text(item.title)
-                                .font(.subheadline.weight(.medium))
-                                .foregroundStyle(CelinkTheme.ink)
+                                Text(item.title)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(CelinkTheme.ink)
+                            }
 
                             if let note = item.note {
                                 Text(note)
@@ -401,7 +554,7 @@ struct EventDetailView: View {
     }
 
     private func photosSection(contentWidth: CGFloat) -> some View {
-        let allURLs = interactionStore.photoURLs(for: eventId)
+        let allURLs = interactionStore.photoURLs(for: eventId, includePrivate: isOwnedEvent)
         let thumbSize = min(120, floor((contentWidth - 20) / 3))
 
         return detailSection(

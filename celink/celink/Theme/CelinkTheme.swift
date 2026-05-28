@@ -47,10 +47,10 @@ enum EventLabels {
 
     static func rsvpName(_ status: RSVPStatus) -> String {
         switch status {
-        case .pending: "미응답"
-        case .yes: "참석"
-        case .no: "불참"
-        case .maybe: "미정"
+        case .pending: "미정"
+        case .yes: "참여"
+        case .no: "미참여"
+        case .maybe: "늦게 참여"
         }
     }
 
@@ -78,10 +78,10 @@ enum EventLabels {
 
     static func rsvpSubtitle(_ status: RSVPStatus) -> String {
         switch status {
-        case .pending: "아직 응답하지 않았어요"
-        case .yes: "행사에 참석할 예정이에요"
-        case .no: "참석이 어려워요"
-        case .maybe: "일정 확인 후 다시 알려드릴게요"
+        case .pending: "아직 결정하지 못했어요"
+        case .yes: "시작 시간에 맞춰 참여할게요"
+        case .no: "이번에는 참여가 어려워요"
+        case .maybe: "시작 후 참여 가능한 시간을 전달해요"
         }
     }
 }
