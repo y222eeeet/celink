@@ -1,5 +1,7 @@
 import { EventLedgerPage } from "@/components/event/EventLedgerPage";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ eventId: string }>;
 }

@@ -1,5 +1,7 @@
 import { EventRSVPPage } from "@/components/event/EventRSVPPage";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ eventId: string }>;
 }

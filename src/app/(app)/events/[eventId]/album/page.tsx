@@ -1,5 +1,7 @@
 import { EventAlbumPage } from "@/components/event/EventAlbumPage";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ eventId: string }>;
 }

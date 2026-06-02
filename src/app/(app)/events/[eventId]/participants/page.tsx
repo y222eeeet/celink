@@ -1,5 +1,7 @@
 import { EventParticipantsPage } from "@/components/event/EventParticipantsPage";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ eventId: string }>;
 }
