@@ -2,6 +2,14 @@ export type EventType = "wedding" | "exhibition" | "performance" | "dol";
 
 export type RSVPStatus = "pending" | "yes" | "no" | "maybe";
 
+export type RelationType =
+  | "family"
+  | "bestFriend"
+  | "friend"
+  | "coworker"
+  | "acquaintance"
+  | "etc";
+
 export interface EventSummary {
   id: string;
   type: EventType;
@@ -11,12 +19,33 @@ export interface EventSummary {
   coverImage: string;
   hostName: string;
   rsvpStatus: RSVPStatus;
-  /** 초대받은 시각 ISO */
-  invitedAt: string;
-  /** 마지막 참여(방명록·사진 등) 시각 ISO, 없으면 null */
   lastParticipatedAt: string | null;
-  /** 다가오는 이벤트 D-day용 */
   isUpcoming: boolean;
+}
+
+export interface ScheduleItem {
+  id: string;
+  time: string;
+  title: string;
+  note?: string | null;
+}
+
+export interface GuestbookEntry {
+  id: string;
+  authorName: string;
+  content: string;
+  isPrivate: boolean;
+  createdAt: string;
+}
+
+export interface EventDetail {
+  summary: EventSummary;
+  description: string;
+  dressCode?: string | null;
+  notice?: string | null;
+  schedule: ScheduleItem[];
+  guestbook: GuestbookEntry[];
+  photoURLs: string[];
 }
 
 export interface RecentPhoto {
@@ -32,5 +61,66 @@ export interface Reminder {
   eventId: string;
   eventTitle: string;
   message: string;
-  dueDate: string;
+}
+
+export interface PhotoComment {
+  id: string;
+  authorName: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface PhotoSocialState {
+  likeCount: number;
+  isLiked: boolean;
+  comments: PhotoComment[];
+}
+
+export interface CelebrationLedgerEntry {
+  id: string;
+  senderName: string;
+  relation: RelationType;
+  amount: number;
+}
+
+export interface InvitedParticipantEntry {
+  id: string;
+  name: string;
+  relation: RelationType;
+  rsvpStatus: RSVPStatus;
+}
+
+export interface EventLedgerOverview {
+  id: string;
+  eventTitle: string;
+  amount: number;
+}
+
+export interface SentGiftEntry {
+  id: string;
+  eventId: string;
+  eventTitle: string;
+  amount: number;
+}
+
+export interface EditableScheduleItem {
+  id: string;
+  time: string;
+  title: string;
+  note: string;
+}
+
+export type CreateEventStep = "type" | "basics" | "cover" | "schedule" | "preview";
+
+export interface CreateEventDraft {
+  step: CreateEventStep;
+  selectedType: EventType;
+  title: string;
+  date: string;
+  location: string;
+  description: string;
+  dressCode: string;
+  notice: string;
+  coverImage: string | null;
+  scheduleItems: EditableScheduleItem[];
 }

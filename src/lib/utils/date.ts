@@ -11,6 +11,15 @@ export function formatEventDate(iso: string): string {
   });
 }
 
+export function formatTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 export function formatRelative(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const days = Math.floor(diff / DAY_MS);
@@ -18,7 +27,10 @@ export function formatRelative(iso: string): string {
   if (days === 1) return "어제";
   if (days < 7) return `${days}일 전`;
   if (days < 30) return `${Math.floor(days / 7)}주 전`;
-  return new Date(iso).toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
+  return new Date(iso).toLocaleDateString("ko-KR", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export function getDaysUntil(iso: string): number {
@@ -34,4 +46,23 @@ export function formatDDay(iso: string): string {
   if (days < 0) return "종료";
   if (days === 0) return "D-Day";
   return `D-${days}`;
+}
+
+export function greeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "좋은 아침이에요";
+  if (hour < 18) return "좋은 오후에요";
+  return "좋은 저녁이에요";
+}
+
+export function formatDateInputValue(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+export function formatTimeInputValue(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }

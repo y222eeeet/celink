@@ -4,13 +4,18 @@
   --font-sans: var(--font-noto-sans);
   --font-serif: var(--font-cormorant);
 
-  --color-cream: #faf8f5;
-  --color-cream-dark: #f3efe8;
-  --color-ink: #1c1917;
-  --color-ink-muted: #57534e;
-  --color-rose: #c4a484;
-  --color-rose-deep: #a68b6a;
-  --color-blush: #e8ddd4;
+  --color-cream: #f8f6fc;
+  --color-cream-dark: #eee9f8;
+  --color-ink: #2a2438;
+  --color-ink-muted: #6e6680;
+  --color-primary: #9f8fef;
+  --color-primary-deep: #7566d9;
+  --color-blush: #ddd6f3;
+  --color-surface: #ffffff;
+
+  /* legacy aliases used in existing components */
+  --color-rose: #9f8fef;
+  --color-rose-deep: #7566d9;
 }
 
 html {
@@ -23,7 +28,6 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* safe area for mobile bottom nav */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
