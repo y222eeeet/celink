@@ -49,7 +49,7 @@ export function EventParticipantsPage({ eventId }: { eventId: string }) {
   ];
 
   return (
-    <div className="space-y-6 px-5 pb-8 pt-4">
+    <div className="space-y-6 pb-8 pt-4">
       <BackLink href={`/events/${eventId}`} />
       <EventSubpageHeader
         title="참여자 관리"

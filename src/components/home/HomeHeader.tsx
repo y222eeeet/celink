@@ -9,7 +9,7 @@ function getGreeting(): string {
 
 export function HomeHeader() {
   return (
-    <header className="px-5 pt-12 pb-6">
+    <header className="pt-12 pb-6">
       <p className="text-sm text-ink-muted">{getGreeting()}</p>
       <h1 className="font-serif text-3xl font-medium tracking-tight text-ink">
         {MOCK_USER.name}님

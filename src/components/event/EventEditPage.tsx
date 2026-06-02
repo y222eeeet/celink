@@ -69,7 +69,7 @@ export function EventEditPage({ eventId }: { eventId: string }) {
   };
 
   return (
-    <div className="space-y-4 px-5 pb-8 pt-4">
+    <div className="space-y-4 pb-8 pt-4">
       <BackLink href={`/events/${eventId}`} />
       <h1 className="font-serif text-2xl text-ink">이벤트 수정</h1>
 

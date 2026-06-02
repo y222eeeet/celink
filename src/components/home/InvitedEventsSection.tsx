@@ -7,7 +7,7 @@ interface InvitedEventsSectionProps {
 
 export function InvitedEventsSection({ events }: InvitedEventsSectionProps) {
   return (
-    <section className="mt-10 px-5" aria-labelledby="invited-heading">
+    <section aria-labelledby="invited-heading">
       <div className="mb-4 flex items-end justify-between">
         <h2
           id="invited-heading"

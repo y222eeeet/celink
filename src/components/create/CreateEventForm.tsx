@@ -89,7 +89,7 @@ export function CreateEventForm() {
 
   if (showSuccess && publishedId) {
     return (
-      <div className="flex min-h-[70dvh] flex-col items-center justify-center px-5 text-center">
+      <div className="flex min-h-[70dvh] flex-col items-center justify-center text-center">
         <p className="font-serif text-2xl text-ink">이벤트가 발행되었어요</p>
         <p className="mt-3 text-sm text-ink-muted">
           초대 링크: celink.app{invitePath(publishedId)}
@@ -112,7 +112,7 @@ export function CreateEventForm() {
   }
 
   return (
-    <div className="px-5 pb-8 pt-4">
+    <div className="pb-8 pt-4">
       <h1 className="font-serif text-2xl text-ink">이벤트 만들기</h1>
       <div className="mt-4 flex gap-2">
         {STEPS.map((s, i) => (
@@ -156,7 +156,7 @@ export function CreateEventForm() {
                   const d = toFiveMinuteInterval(new Date(e.target.value));
                   setDate(toLocalISOString(d));
                 }}
-                className="w-full rounded-xl border border-blush bg-surface px-3 py-3 text-sm"
+                className="box-border w-full max-w-full min-w-0 rounded-xl border border-blush bg-surface px-3 py-3 text-sm"
               />
             </label>
             <Field label="장소" value={location} onChange={setLocation} placeholder="장소" />
@@ -204,7 +204,7 @@ export function CreateEventForm() {
                     };
                     setScheduleItems(next);
                   }}
-                  className="w-full rounded-lg border border-blush px-2 py-2 text-sm"
+                  className="box-border w-full max-w-full min-w-0 rounded-lg border border-blush px-2 py-2 text-sm"
                 />
                 <input
                   value={item.title}
@@ -214,7 +214,7 @@ export function CreateEventForm() {
                     setScheduleItems(next);
                   }}
                   placeholder="식순 제목"
-                  className="w-full rounded-lg border border-blush px-2 py-2 text-sm"
+                  className="box-border w-full max-w-full min-w-0 rounded-lg border border-blush px-2 py-2 text-sm"
                 />
                 {scheduleItems.length > 1 ? (
                   <button
@@ -294,7 +294,8 @@ function Field({
   placeholder: string;
   multiline?: boolean;
 }) {
-  const cls = "w-full rounded-xl border border-blush bg-surface px-3 py-3 text-sm";
+  const cls =
+    "box-border w-full max-w-full min-w-0 rounded-xl border border-blush bg-surface px-3 py-3 text-sm";
   return (
     <label className="block space-y-1.5">
       <span className="text-sm font-medium text-ink">{label}</span>

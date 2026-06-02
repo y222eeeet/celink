@@ -11,7 +11,7 @@ export function RecentPhotos({ photos }: RecentPhotosProps) {
   if (photos.length === 0) return null;
 
   return (
-    <section className="mt-10 px-5" aria-labelledby="photos-heading">
+    <section aria-labelledby="photos-heading">
       <div className="mb-3 flex items-end justify-between">
         <h2
           id="photos-heading"

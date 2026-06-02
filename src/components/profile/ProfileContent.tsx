@@ -25,7 +25,7 @@ export function ProfileContent() {
   const ledgerAmount = interaction.currentLedgerAmount();
 
   return (
-    <div className="px-5 pb-6">
+    <div className="pb-6">
       <header className="pb-6 pt-2">
         <h1 className="font-serif text-3xl font-medium text-ink">프로필</h1>
         <p className="mt-1 text-sm text-ink-muted">{MOCK_USER.name}님의 이벤트</p>

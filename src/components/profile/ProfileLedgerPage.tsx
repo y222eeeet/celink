@@ -24,7 +24,7 @@ export function ProfileLedgerPage() {
   const current = interaction.currentLedgerAmount();
 
   return (
-    <div className="space-y-6 px-5 pb-8 pt-4">
+    <div className="space-y-6 pb-8 pt-4">
       <BackLink href="/profile" label="← 프로필" />
       <EventSubpageHeader
         title="장부 상세"
@@ -123,7 +123,7 @@ export function ProfileWithdrawPage() {
   }
 
   return (
-    <div className="space-y-6 px-5 pb-8 pt-4">
+    <div className="space-y-6 pb-8 pt-4">
       <BackLink href="/profile" label="← 프로필" />
       <EventSubpageHeader
         title="장부 출금"

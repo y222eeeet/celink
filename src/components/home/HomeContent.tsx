@@ -35,7 +35,7 @@ export function HomeContent() {
   return (
     <>
       <HomeHeader />
-      <div className="space-y-10 px-5 pb-6">
+      <div className="space-y-10 pb-6">
         {createdEvents.length > 0 ? (
           <section className="space-y-3">
             <SectionHeader

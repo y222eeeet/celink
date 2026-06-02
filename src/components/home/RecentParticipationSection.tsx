@@ -20,7 +20,7 @@ export function RecentParticipationSection({
   if (recent.length === 0) return null;
 
   return (
-    <section className="mt-10 px-5" aria-labelledby="recent-heading">
+    <section aria-labelledby="recent-heading">
       <h2
         id="recent-heading"
         className="mb-4 text-xs font-semibold uppercase tracking-widest text-rose-deep"

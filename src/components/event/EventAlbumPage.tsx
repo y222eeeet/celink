@@ -33,7 +33,7 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
   };
 
   return (
-    <div className="space-y-6 px-5 pb-8 pt-4">
+    <div className="space-y-6 pb-8 pt-4">
       <div className="flex items-center justify-between">
         <BackLink href={`/events/${eventId}`} />
         <label className="cursor-pointer rounded-full bg-primary-deep px-3 py-1.5 text-xs font-semibold text-white">

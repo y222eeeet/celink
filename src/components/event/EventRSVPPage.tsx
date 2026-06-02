@@ -32,7 +32,7 @@ export function EventRSVPPage({ eventId }: { eventId: string }) {
     setLateArrival(existing ?? detail.summary.date);
   }, [detail, eventId, interaction]);
 
-  if (!detail) return <p className="p-5 text-ink-muted">이벤트를 찾을 수 없습니다</p>;
+  if (!detail) return <p className="py-5 text-ink-muted">이벤트를 찾을 수 없습니다</p>;
 
   const minTime = detail.summary.date;
 
@@ -47,7 +47,7 @@ export function EventRSVPPage({ eventId }: { eventId: string }) {
   };
 
   return (
-    <div className="space-y-6 px-5 pb-8 pt-4">
+    <div className="space-y-6 pb-8 pt-4">
       <BackLink href={`/events/${eventId}`} />
       <EventSubpageHeader
         title="RSVP"

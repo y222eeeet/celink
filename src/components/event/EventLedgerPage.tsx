@@ -16,7 +16,7 @@ export function EventLedgerPage({ eventId }: { eventId: string }) {
   const total = entries.reduce((s, e) => s + e.amount, 0);
 
   return (
-    <div className="space-y-6 px-5 pb-8 pt-4">
+    <div className="space-y-6 pb-8 pt-4">
       <BackLink href={`/events/${eventId}`} />
       <EventSubpageHeader
         title="장부"

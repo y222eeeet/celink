@@ -17,7 +17,7 @@ export function UpcomingSection({ events }: UpcomingSectionProps) {
   const [featured, ...rest] = upcoming;
 
   return (
-    <section className="px-5" aria-labelledby="upcoming-heading">
+    <section aria-labelledby="upcoming-heading">
       <h2
         id="upcoming-heading"
         className="mb-4 text-xs font-semibold uppercase tracking-widest text-rose-deep"

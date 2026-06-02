@@ -9,7 +9,7 @@ export function ReminderList({ reminders }: ReminderListProps) {
   if (reminders.length === 0) return null;
 
   return (
-    <section className="px-5" aria-labelledby="reminders-heading">
+    <section aria-labelledby="reminders-heading">
       <h2
         id="reminders-heading"
         className="mb-3 text-xs font-semibold uppercase tracking-widest text-rose-deep"

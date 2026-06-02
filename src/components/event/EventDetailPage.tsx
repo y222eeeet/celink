@@ -53,7 +53,7 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
 
   return (
     <div className="relative pb-36">
-      <div className="relative h-[min(52vw,300px)] min-h-[200px] w-full">
+      <div className="relative -mx-5 h-[min(52vw,300px)] min-h-[200px] w-auto">
         <Image
           src={summary.coverImage}
           alt=""
@@ -87,7 +87,7 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
         </div>
       </div>
 
-      <div className="space-y-8 px-5 pt-6">
+      <div className="space-y-8 pt-6">
         <div className="rounded-2xl border border-blush bg-surface p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${rsvpStyle.bg} ${rsvpStyle.text}`}>
