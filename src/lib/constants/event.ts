@@ -1,7 +1,10 @@
 import type { EventType, RelationType, RSVPStatus } from "@/lib/types";
 
-/** 지우의 생일파티 등 돌잔치/생일 기본 커버 (public/) */
+/** 커버 이미지 (public/images/covers) */
 export const BIRTHDAY_COVER_IMAGE = "/images/covers/birthday-party.png";
+export const EXHIBITION_COVER_IMAGE = "/images/covers/exhibition-cover.png";
+export const PERFORMANCE_COVER_IMAGE = "/images/covers/performance-cover.png";
+export const DOL_COVER_IMAGE = "/images/covers/dol-cover.png";
 
 export const EVENT_TYPE_LABEL: Record<EventType, string> = {
   wedding: "결혼식",
@@ -46,9 +49,7 @@ export const RELATION_LABEL: Record<RelationType, string> = {
 export const DEFAULT_COVER_BY_TYPE: Record<EventType, string> = {
   wedding:
     "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
-  exhibition:
-    "https://images.unsplash.com/photo-1460661414737-f969d6ae3b70?w=800&q=80",
-  performance:
-    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80",
-  dol: BIRTHDAY_COVER_IMAGE,
+  exhibition: EXHIBITION_COVER_IMAGE,
+  performance: PERFORMANCE_COVER_IMAGE,
+  dol: DOL_COVER_IMAGE,
 };

@@ -1,4 +1,9 @@
-import { BIRTHDAY_COVER_IMAGE } from "@/lib/constants/event";
+import {
+  BIRTHDAY_COVER_IMAGE,
+  DOL_COVER_IMAGE,
+  EXHIBITION_COVER_IMAGE,
+  PERFORMANCE_COVER_IMAGE,
+} from "@/lib/constants/event";
 import type {
   EventDetail,
   EventSummary,
@@ -71,8 +76,7 @@ export const MOCK_EVENT_DETAILS: EventDetail[] = [
       title: "졸업 전시 — 빛의 결",
       date: "2026-05-25T12:00:00",
       location: "홍익대학교 현대미술관",
-      coverImage:
-        "https://images.unsplash.com/photo-1460661414737-f969d6ae3b70?w=800&q=80",
+      coverImage: EXHIBITION_COVER_IMAGE,
       hostName: "이하은",
       rsvpStatus: "maybe",
       lastParticipatedAt: "2026-05-12T18:00:00",
@@ -129,8 +133,7 @@ export const MOCK_EVENT_DETAILS: EventDetail[] = [
       title: "도윤이 첫 번째 생일",
       date: "2026-03-08T11:30:00",
       location: "판교 파티룸",
-      coverImage:
-        "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80",
+      coverImage: DOL_COVER_IMAGE,
       hostName: "박서연",
       rsvpStatus: "yes",
       lastParticipatedAt: "2026-03-08T16:45:00",
@@ -163,8 +166,7 @@ export const MOCK_EVENT_DETAILS: EventDetail[] = [
       title: "봄밤 재즈 콘서트",
       date: "2026-07-20T20:00:00",
       location: "블루스퀘어",
-      coverImage:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80",
+      coverImage: PERFORMANCE_COVER_IMAGE,
       hostName: "최예린",
       rsvpStatus: "pending",
       lastParticipatedAt: null,
