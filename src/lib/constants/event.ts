@@ -1,5 +1,8 @@
 import type { EventType, RelationType, RSVPStatus } from "@/lib/types";
 
+/** 지우의 생일파티 등 돌잔치/생일 기본 커버 (public/) */
+export const BIRTHDAY_COVER_IMAGE = "/images/covers/birthday-party.png";
+
 export const EVENT_TYPE_LABEL: Record<EventType, string> = {
   wedding: "결혼식",
   exhibition: "전시",
@@ -47,5 +50,5 @@ export const DEFAULT_COVER_BY_TYPE: Record<EventType, string> = {
     "https://images.unsplash.com/photo-1460661414737-f969d6ae3b70?w=800&q=80",
   performance:
     "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80",
-  dol: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80",
+  dol: BIRTHDAY_COVER_IMAGE,
 };

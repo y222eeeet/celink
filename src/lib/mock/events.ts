@@ -1,3 +1,4 @@
+import { BIRTHDAY_COVER_IMAGE } from "@/lib/constants/event";
 import type {
   EventDetail,
   EventSummary,
@@ -244,8 +245,7 @@ export const SEED_OWNED_EVENT: EventDetail = {
     title: "지우의 생일파티",
     date: "2026-08-16T19:00:00",
     location: "성수 루프탑 라운지",
-    coverImage:
-      "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=800&q=80",
+    coverImage: BIRTHDAY_COVER_IMAGE,
     hostName: MOCK_USER.name,
     rsvpStatus: "yes",
     lastParticipatedAt: null,
