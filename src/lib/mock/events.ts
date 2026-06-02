@@ -192,22 +192,6 @@ export const MOCK_INVITED_EVENTS: EventSummary[] = MOCK_EVENT_DETAILS.map(
 
 export const MOCK_RECENT_PHOTOS: RecentPhoto[] = [
   {
-    id: "ph-1",
-    eventId: "evt-2",
-    eventTitle: "졸업 전시 — 빛의 결",
-    imageUrl:
-      "https://images.unsplash.com/photo-1578301978693-85fa9c0320f9?w=400&q=80",
-    uploadedAt: "2026-05-12T17:55:00",
-  },
-  {
-    id: "ph-2",
-    eventId: "evt-1",
-    eventTitle: "민수 ♥ 지연 결혼식",
-    imageUrl:
-      "https://images.unsplash.com/photo-1465495976277-812eacf5aee6?w=400&q=80",
-    uploadedAt: "2026-05-10T14:20:00",
-  },
-  {
     id: "ph-3",
     eventId: "evt-2",
     eventTitle: "졸업 전시 — 빛의 결",
