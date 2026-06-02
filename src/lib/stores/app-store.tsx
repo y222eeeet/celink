@@ -68,8 +68,6 @@ function getParticipantEntries(
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
 
 interface CreatedEventsContextValue {
   ownedEvents: EventDetail[];
