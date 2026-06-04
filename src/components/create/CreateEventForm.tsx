@@ -8,6 +8,7 @@ import {
   EVENT_TYPE_LABEL,
 } from "@/lib/constants/event";
 import { useCreatedEvents } from "@/lib/stores/app-store";
+import { useNavigationGuard } from "@/lib/stores/navigation-guard";
 import type { CreateEventStep, EditableScheduleItem, EventType } from "@/lib/types";
 import { toLocalISOString, toFiveMinuteInterval } from "@/lib/utils/date-rounding";
 import { formatEventDate } from "@/lib/utils/date";
@@ -55,6 +56,33 @@ export function CreateEventForm() {
 
   const stepIndex = STEPS.indexOf(step);
   const cover = coverImage ?? DEFAULT_COVER_BY_TYPE[selectedType];
+
+  const isDirty = useMemo(() => {
+    if (showSuccess) return false;
+    if (step !== "type") return true;
+    return (
+      title.trim().length > 0 ||
+      location.trim().length > 0 ||
+      description.trim().length > 0 ||
+      dressCode.trim().length > 0 ||
+      notice.trim().length > 0 ||
+      coverImage !== null ||
+      scheduleItems.length > 1 ||
+      scheduleItems[0]?.title !== "웰컴"
+    );
+  }, [
+    showSuccess,
+    step,
+    title,
+    location,
+    description,
+    dressCode,
+    notice,
+    coverImage,
+    scheduleItems,
+  ]);
+
+  useNavigationGuard("create-event", isDirty);
 
   const canNext = useMemo(() => {
     if (step === "basics") return title.trim().length > 0 && location.trim().length > 0;

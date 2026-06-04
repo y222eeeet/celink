@@ -11,6 +11,7 @@ import {
   useEventDetail,
   useInteractionStore,
 } from "@/lib/stores/app-store";
+import { useNavigationGuard } from "@/lib/stores/navigation-guard";
 
 export function EventGuestbookPage({ eventId }: { eventId: string }) {
   const detail = useEventDetail(eventId);
@@ -21,6 +22,8 @@ export function EventGuestbookPage({ eventId }: { eventId: string }) {
   const [authorName, setAuthorName] = useState(MOCK_USER.name);
   const [content, setContent] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
+
+  useNavigationGuard(`guestbook-${eventId}`, content.trim().length > 0);
 
   if (!detail) return <p className="p-5 text-ink-muted">이벤트를 찾을 수 없습니다</p>;
 

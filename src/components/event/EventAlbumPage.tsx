@@ -9,6 +9,7 @@ import {
   useEventDetail,
   useInteractionStore,
 } from "@/lib/stores/app-store";
+import { useNavigationGuard } from "@/lib/stores/navigation-guard";
 import { formatRelative } from "@/lib/utils/date";
 
 export function EventAlbumPage({ eventId }: { eventId: string }) {
@@ -19,6 +20,8 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
 
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
+
+  useNavigationGuard(`album-comment-${eventId}`, commentText.trim().length > 0);
 
   if (!detail) return <p className="p-5 text-ink-muted">이벤트를 찾을 수 없습니다</p>;
 

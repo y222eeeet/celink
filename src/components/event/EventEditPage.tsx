@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EVENT_TYPE_LABEL } from "@/lib/constants/event";
 import { useCreatedEvents, useEventDetail } from "@/lib/stores/app-store";
+import { useNavigationGuard } from "@/lib/stores/navigation-guard";
 import type { EditableScheduleItem, EventType } from "@/lib/types";
 import { toLocalISOString, toFiveMinuteInterval } from "@/lib/utils/date-rounding";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
@@ -44,6 +45,46 @@ export function EventEditPage({ eventId }: { eventId: string }) {
       }))
     );
   }, [detail]);
+
+  const isDirty = useMemo(() => {
+    if (!detail) return false;
+    const scheduleChanged =
+      scheduleItems.length !== detail.schedule.length ||
+      scheduleItems.some((item, index) => {
+        const original = detail.schedule[index];
+        if (!original) return true;
+        return (
+          item.time !== original.time ||
+          item.title !== original.title ||
+          (item.note ?? "") !== (original.note ?? "")
+        );
+      });
+
+    return (
+      title !== detail.summary.title ||
+      date !== detail.summary.date ||
+      location !== detail.summary.location ||
+      description !== detail.description ||
+      (dressCode || "") !== (detail.dressCode ?? "") ||
+      (notice || "") !== (detail.notice ?? "") ||
+      coverImage !== detail.summary.coverImage ||
+      selectedType !== detail.summary.type ||
+      scheduleChanged
+    );
+  }, [
+    detail,
+    title,
+    date,
+    location,
+    description,
+    dressCode,
+    notice,
+    coverImage,
+    selectedType,
+    scheduleItems,
+  ]);
+
+  useNavigationGuard(`edit-event-${eventId}`, isDirty);
 
   if (!detail) {
     return <p className="p-5 text-ink-muted">이벤트를 찾을 수 없습니다</p>;
