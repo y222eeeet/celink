@@ -26,13 +26,23 @@ export function EventRSVPPage({ eventId }: { eventId: string }) {
 
   useEffect(() => {
     if (!detail) return;
+    if (!detail.summary.isUpcoming) {
+      router.replace(`/events/${eventId}`);
+      return;
+    }
     const status = interaction.rsvpStatus(eventId, detail.summary.rsvpStatus);
     setSelected(status);
     const existing = interaction.lateArrivalTime(eventId);
     setLateArrival(existing ?? detail.summary.date);
-  }, [detail, eventId, interaction]);
+  }, [detail, eventId, interaction, router]);
 
   if (!detail) return <p className="py-5 text-ink-muted">이벤트를 찾을 수 없습니다</p>;
+
+  if (!detail.summary.isUpcoming) {
+    return (
+      <p className="py-5 text-ink-muted">지난 이벤트는 상세 페이지에서 참여 여부를 선택해 주세요</p>
+    );
+  }
 
   const minTime = detail.summary.date;
 

@@ -11,6 +11,7 @@ final class EventInteractionStore {
     private var addedPhotos: [String: [URL]] = [:]
     private var photoSocialState: [String: PhotoSocialState] = [:]
     private var lateArrivalTimes: [String: Date] = [:]
+    private var lastParticipatedAtOverrides: [String: Date?] = [:]
     private var ledgerByEvent: [String: [CelebrationLedgerEntry]] = [:]
     private var participantsByEvent: [String: [InvitedParticipantEntry]] = [:]
     private var privatePhotoKeysByEvent: [String: Set<String>] = [:]
@@ -90,6 +91,11 @@ final class EventInteractionStore {
         totalReceivedAmountForOwnedEvents() - totalSentAmount()
     }
 
+    /// 누적 출금 금액
+    func totalWithdrawnAmount() -> Int {
+        withdrawnAmount
+    }
+
     /// 현재 장부 금액(출금 반영): (받은 - 보낸) - 누적 출금
     func currentLedgerAmount() -> Int {
         max(0, netLedgerAmountBeforeWithdraw() - withdrawnAmount)
@@ -148,6 +154,20 @@ final class EventInteractionStore {
             lateArrivalTimes.removeValue(forKey: eventId)
         }
         CreatedEventsStore.shared.updateRSVP(eventId: eventId, status: status)
+    }
+
+    func lastParticipatedAt(for eventId: String, default defaultAt: Date?) -> Date? {
+        if let override = lastParticipatedAtOverrides[eventId] {
+            return override
+        }
+        return defaultAt
+    }
+
+    func savePastParticipation(eventId: String, participated: Bool) {
+        rsvpOverrides[eventId] = participated ? .yes : .no
+        lateArrivalTimes.removeValue(forKey: eventId)
+        lastParticipatedAtOverrides[eventId] = participated ? Date() : nil
+        CreatedEventsStore.shared.updateRSVP(eventId: eventId, status: participated ? .yes : .no)
     }
 
     // MARK: - Guestbook

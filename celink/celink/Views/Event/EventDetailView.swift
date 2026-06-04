@@ -119,33 +119,49 @@ struct EventDetailView: View {
         .frame(height: 44)
     }
 
+    @ViewBuilder
     private var detailCTA: some View {
-        HStack(spacing: 10) {
-            NavigationLink(value: isOwnedEvent ? EventDetailDestination.ledger : EventDetailDestination.rsvp) {
-                Text(isOwnedEvent ? "장부 확인하기" : "참여여부 회신")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 13)
-                    .background(CelinkTheme.primaryDeep)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-            .buttonStyle(.plain)
+        let isPastGuestEvent = !isOwnedEvent && (detail?.summary.isUpcoming == false)
 
-            NavigationLink(value: isOwnedEvent ? EventDetailDestination.participants : EventDetailDestination.giftTransfer) {
-                Text(isOwnedEvent ? "참여자 관리하기" : "축하하기")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(CelinkTheme.primaryDeep)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 13)
-                    .background(CelinkTheme.backgroundSecondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(CelinkTheme.border, lineWidth: 1)
-                    }
+        HStack(spacing: 10) {
+            if isPastGuestEvent {
+                NavigationLink(value: EventDetailDestination.giftTransfer) {
+                    Text("축하하기")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background(CelinkTheme.primaryDeep)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+            } else {
+                NavigationLink(value: isOwnedEvent ? EventDetailDestination.ledger : EventDetailDestination.rsvp) {
+                    Text(isOwnedEvent ? "장부 확인하기" : "참여여부 회신")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background(CelinkTheme.primaryDeep)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink(value: isOwnedEvent ? EventDetailDestination.participants : EventDetailDestination.giftTransfer) {
+                    Text(isOwnedEvent ? "참여자 관리하기" : "축하하기")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(CelinkTheme.primaryDeep)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background(CelinkTheme.backgroundSecondary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(CelinkTheme.border, lineWidth: 1)
+                        }
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, CelinkLayout.horizontalPadding)
@@ -235,16 +251,32 @@ struct EventDetailView: View {
         let rsvp = EventLabels.rsvpColors(status)
         let hostLabel = isOwnedEvent ? "내가 주최한 이벤트" : "\(event.hostName)님의 초대"
 
+        let isPastEvent = !event.isUpcoming
+        let pastLabel = EventLabels.pastParticipationName(status)
+
         return VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .center, spacing: 10) {
-                Text(EventLabels.rsvpName(status))
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(rsvp.background)
-                    .foregroundStyle(rsvp.foreground)
-                    .clipShape(Capsule())
-                    .fixedSize()
+                if !isOwnedEvent, isPastEvent, let pastLabel {
+                    Text(pastLabel)
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(rsvp.background)
+                        .foregroundStyle(rsvp.foreground)
+                        .clipShape(Capsule())
+                        .fixedSize()
+                } else if !isOwnedEvent, isPastEvent {
+                    EmptyView()
+                } else {
+                    Text(EventLabels.rsvpName(status))
+                        .font(.caption.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(rsvp.background)
+                        .foregroundStyle(rsvp.foreground)
+                        .clipShape(Capsule())
+                        .fixedSize()
+                }
 
                 Text(hostLabel)
                     .font(.caption)
@@ -325,6 +357,8 @@ struct EventDetailView: View {
             .frame(maxWidth: .infinity)
             .padding(.horizontal, CelinkLayout.horizontalPadding)
             .padding(.vertical, 4)
+        } else if !event.isUpcoming {
+            pastParticipationPicker(contentWidth: contentWidth, event: event)
         } else {
             let status = resolvedRSVPStatus(for: event)
             let needsRSVPHighlight = status == .pending
@@ -379,6 +413,69 @@ struct EventDetailView: View {
             .padding(.horizontal, CelinkLayout.horizontalPadding)
             .padding(.vertical, 4)
         }
+    }
+
+    private func pastParticipationPicker(contentWidth: CGFloat, event: EventSummary) -> some View {
+        let status = resolvedRSVPStatus(for: event)
+        let attended = status == .yes
+        let declined = status == .no
+
+        return VStack(alignment: .leading, spacing: 12) {
+            Text("나는 이 이벤트에")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(CelinkTheme.ink)
+
+            HStack(spacing: CelinkLayout.itemSpacing) {
+                Button {
+                    interactionStore.savePastParticipation(eventId: eventId, participated: true)
+                } label: {
+                    Text("참여")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(attended ? .white : CelinkTheme.ink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(attended ? CelinkTheme.primaryDeep : CelinkTheme.backgroundSecondary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .overlay {
+                            if !attended {
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(CelinkTheme.border, lineWidth: 1)
+                            }
+                        }
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    interactionStore.savePastParticipation(eventId: eventId, participated: false)
+                } label: {
+                    Text("불참")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(declined ? .white : CelinkTheme.ink)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(declined ? CelinkTheme.primaryDeep : CelinkTheme.backgroundSecondary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .overlay {
+                            if !declined {
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(CelinkTheme.border, lineWidth: 1)
+                            }
+                        }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(16)
+        .frame(width: contentWidth, alignment: .leading)
+        .background(CelinkTheme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: CelinkLayout.cardCornerRadius))
+        .overlay {
+            RoundedRectangle(cornerRadius: CelinkLayout.cardCornerRadius)
+                .stroke(CelinkTheme.border, lineWidth: 1)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, CelinkLayout.horizontalPadding)
+        .padding(.vertical, 4)
     }
 
     private func rsvpActionButton(status: RSVPStatus, width: CGFloat) -> some View {

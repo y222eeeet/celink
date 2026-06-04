@@ -21,6 +21,8 @@ export function ProfileLedgerPage() {
   const sent = interaction.sentGiftOverview();
   const totalReceived = interaction.totalReceivedAmount();
   const totalSent = interaction.totalSentAmount();
+  const totalWithdrawn = interaction.totalWithdrawnAmount();
+  const netBeforeWithdraw = totalReceived - totalSent;
   const current = interaction.currentLedgerAmount();
 
   return (
@@ -34,9 +36,18 @@ export function ProfileLedgerPage() {
 
       <div className="rounded-xl border border-blush bg-surface p-4 space-y-3">
         <Row label="총 받은 축하금" value={formatAmount(totalReceived)} highlight />
-        <Row label="총 보낸 축하금" value={formatAmount(totalSent)} />
+        <Row label="총 보낸 축하금" value={`− ${formatAmount(totalSent)}`} />
+        <Row
+          label="출금 금액"
+          value={totalWithdrawn > 0 ? `− ${formatAmount(totalWithdrawn)}` : formatAmount(0)}
+        />
         <hr className="border-blush" />
-        <Row label="현재 장부 금액" value={formatAmount(current)} large />
+        <Row
+          label="현재 장부 금액"
+          value={formatAmount(current)}
+          large
+          hint={`${formatAmount(totalReceived)} − ${formatAmount(totalSent)} − ${formatAmount(totalWithdrawn)} = ${formatAmount(Math.max(0, netBeforeWithdraw - totalWithdrawn))}`}
+        />
       </div>
 
       <section className="space-y-2">
@@ -61,24 +72,29 @@ function Row({
   value,
   highlight,
   large,
+  hint,
 }: {
   label: string;
   value: string;
   highlight?: boolean;
   large?: boolean;
+  hint?: string;
 }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className={`${large ? "text-sm font-semibold" : "text-xs"} text-ink-muted`}>
-        {label}
-      </span>
-      <span
-        className={`font-semibold ${
-          large ? "text-xl text-primary-deep" : highlight ? "text-primary-deep" : "text-ink"
-        }`}
-      >
-        {value}
-      </span>
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <span className={`${large ? "text-sm font-semibold" : "text-xs"} text-ink-muted`}>
+          {label}
+        </span>
+        <span
+          className={`font-semibold ${
+            large ? "text-xl text-primary-deep" : highlight ? "text-primary-deep" : "text-ink"
+          }`}
+        >
+          {value}
+        </span>
+      </div>
+      {hint ? <p className="text-[11px] text-ink-muted">{hint}</p> : null}
     </div>
   );
 }

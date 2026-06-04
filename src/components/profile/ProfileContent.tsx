@@ -16,6 +16,10 @@ export function ProfileContent() {
   const resolveRSVP = (event: EventSummary): EventSummary => ({
     ...event,
     rsvpStatus: interaction.rsvpStatus(event.id, event.rsvpStatus),
+    lastParticipatedAt: interaction.lastParticipatedAt(
+      event.id,
+      event.lastParticipatedAt
+    ),
   });
 
   const sortByEventDateDesc = (events: EventSummary[]) =>

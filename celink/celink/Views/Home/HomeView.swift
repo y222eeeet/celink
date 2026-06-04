@@ -2,10 +2,22 @@ import SwiftUI
 
 struct HomeView: View {
     @Bindable private var createdStore = CreatedEventsStore.shared
+    @Bindable private var interactionStore = EventInteractionStore.shared
 
     private let events = MockData.invitedEvents
     private let photos = MockData.recentPhotos
-    private let reminders = MockData.reminders
+
+    private var activeReminders: [Reminder] {
+        MockData.reminders.filter { reminder in
+            let defaultStatus =
+                events.first(where: { $0.id == reminder.eventId })?.rsvpStatus ?? .yes
+            let status = interactionStore.rsvpStatus(
+                for: reminder.eventId,
+                default: defaultStatus
+            )
+            return status == .pending || status == .maybe
+        }
+    }
 
     private var upcomingEvents: [EventSummary] {
         (createdStore.summaries + events)
@@ -13,8 +25,27 @@ struct HomeView: View {
             .sorted { $0.date < $1.date }
     }
 
+    private func resolved(_ event: EventSummary) -> EventSummary {
+        EventSummary(
+            id: event.id,
+            type: event.type,
+            title: event.title,
+            date: event.date,
+            location: event.location,
+            coverImageURL: event.coverImageURL,
+            hostName: event.hostName,
+            rsvpStatus: interactionStore.rsvpStatus(for: event.id, default: event.rsvpStatus),
+            lastParticipatedAt: interactionStore.lastParticipatedAt(
+                for: event.id,
+                default: event.lastParticipatedAt
+            ),
+            isUpcoming: event.isUpcoming
+        )
+    }
+
     private var recentParticipation: [EventSummary] {
         events
+            .map(resolved)
             .filter { $0.lastParticipatedAt != nil }
             .sorted {
                 ($0.lastParticipatedAt ?? .distantPast) > ($1.lastParticipatedAt ?? .distantPast)
@@ -105,13 +136,13 @@ struct HomeView: View {
 
     @ViewBuilder
     private func remindersSection(contentWidth: CGFloat) -> some View {
-        if !reminders.isEmpty {
+        if !activeReminders.isEmpty {
             sectionBlock {
                 SectionHeaderView(title: "리마인더")
                     .padding(.bottom, 12)
 
                 VStack(spacing: 8) {
-                    ForEach(reminders) { reminder in
+                    ForEach(activeReminders) { reminder in
                         eventLink(eventId: reminder.eventId) {
                             HStack(alignment: .top, spacing: 12) {
                                 Image(systemName: "bell.fill")

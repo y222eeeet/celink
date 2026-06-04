@@ -35,7 +35,14 @@ struct EventRSVPView: View {
 
     var body: some View {
         Group {
-            if let detail {
+            if let detail, !detail.summary.isUpcoming {
+                Text("지난 이벤트는 상세 페이지에서 참여 여부를 선택해 주세요")
+                    .font(.subheadline)
+                    .foregroundStyle(CelinkTheme.inkMuted)
+                    .multilineTextAlignment(.center)
+                    .padding()
+                    .onAppear { dismiss() }
+            } else if let detail {
                 content(detail)
             } else {
                 Text("이벤트를 찾을 수 없습니다")
@@ -46,7 +53,10 @@ struct EventRSVPView: View {
         .navigationTitle("RSVP")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(CelinkTheme.background, for: .navigationBar)
-        .onAppear { loadIfNeeded(from: detail) }
+        .onAppear {
+            guard let detail, detail.summary.isUpcoming else { return }
+            loadIfNeeded(from: detail)
+        }
         .onChange(of: detail?.summary.rsvpStatus) { _, _ in
             loadIfNeeded(from: detail)
         }

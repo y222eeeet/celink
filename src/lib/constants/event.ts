@@ -37,6 +37,19 @@ export const RSVP_STATUS_STYLE: Record<
   maybe: { bg: "bg-primary/15", text: "text-primary-deep" },
 };
 
+/** 지난 이벤트 — 실제 참여 여부 (RSVP yes/no만 사용) */
+export const PAST_PARTICIPATION_LABEL = {
+  yes: "참여",
+  no: "불참",
+} as const;
+
+export function pastParticipationStatus(
+  status: RSVPStatus
+): keyof typeof PAST_PARTICIPATION_LABEL | null {
+  if (status === "yes" || status === "no") return status;
+  return null;
+}
+
 export const RELATION_LABEL: Record<RelationType, string> = {
   family: "가족",
   bestFriend: "절친",

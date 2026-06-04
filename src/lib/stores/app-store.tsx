@@ -103,6 +103,11 @@ interface InteractionContextValue {
     status: RSVPStatus,
     lateArrivalTime?: string | null
   ) => void;
+  lastParticipatedAt: (
+    eventId: string,
+    defaultAt: string | null
+  ) => string | null;
+  savePastParticipation: (eventId: string, participated: boolean) => void;
   guestbookEntries: (eventId: string, base: GuestbookEntry[]) => GuestbookEntry[];
   addGuestbookEntry: (
     eventId: string,
@@ -136,6 +141,7 @@ interface InteractionContextValue {
   totalReceivedAmount: () => number;
   totalSentAmount: () => number;
   currentLedgerAmount: () => number;
+  totalWithdrawnAmount: () => number;
   receivedOverviewByOwnedEvent: (owned: EventSummary[]) => {
     id: string;
     eventTitle: string;
@@ -196,6 +202,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [lateArrivalTimes, setLateArrivalTimes] = useState<
     Record<string, string>
   >({});
+  const [lastParticipatedAtOverrides, setLastParticipatedAtOverrides] =
+    useState<Record<string, string | null>>({});
   const [addedGuestbook, setAddedGuestbook] = useState<
     Record<string, GuestbookEntry[]>
   >({});
@@ -361,6 +369,27 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           });
         }
       },
+      lastParticipatedAt: (eventId, defaultAt) => {
+        if (eventId in lastParticipatedAtOverrides) {
+          return lastParticipatedAtOverrides[eventId];
+        }
+        return defaultAt;
+      },
+      savePastParticipation: (eventId, participated) => {
+        setRsvpOverrides((prev) => ({
+          ...prev,
+          [eventId]: participated ? "yes" : "no",
+        }));
+        setLateArrivalTimes((prev) => {
+          const next = { ...prev };
+          delete next[eventId];
+          return next;
+        });
+        setLastParticipatedAtOverrides((prev) => ({
+          ...prev,
+          [eventId]: participated ? toLocalISOString(new Date()) : null,
+        }));
+      },
       guestbookEntries: (eventId, base) => {
         const extra = addedGuestbook[eventId] ?? [];
         return [...extra, ...base].sort(
@@ -493,6 +522,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       totalSentAmount: () =>
         sentGiftEntries.reduce((sum, e) => sum + e.amount, 0),
       currentLedgerAmount: () => computeCurrentLedger(),
+      totalWithdrawnAmount: () => withdrawnAmount,
       receivedOverviewByOwnedEvent: (owned) =>
         owned.map((summary) => {
           const entries = getLedgerEntries(summary.id, ledgerByEvent);
@@ -513,6 +543,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     [
       rsvpOverrides,
       lateArrivalTimes,
+      lastParticipatedAtOverrides,
       addedGuestbook,
       addedPhotos,
       photoSocialState,

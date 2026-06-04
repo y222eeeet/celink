@@ -54,6 +54,15 @@ enum EventLabels {
         }
     }
 
+    /// 지난 이벤트 — 실제 참여 여부 표시
+    static func pastParticipationName(_ status: RSVPStatus) -> String? {
+        switch status {
+        case .yes: "참여"
+        case .no: "불참"
+        default: nil
+        }
+    }
+
     static func rsvpColors(_ status: RSVPStatus) -> (background: Color, foreground: Color) {
         switch status {
         case .pending:

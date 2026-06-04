@@ -19,6 +19,14 @@ struct ProfileLedgerOverviewView: View {
         interactionStore.totalSentAmount()
     }
 
+    private var totalWithdrawn: Int {
+        interactionStore.totalWithdrawnAmount()
+    }
+
+    private var netBeforeWithdraw: Int {
+        totalReceived - totalSent
+    }
+
     private var currentLedgerAmount: Int {
         interactionStore.currentLedgerAmount()
     }
@@ -86,19 +94,36 @@ struct ProfileLedgerOverviewView: View {
                     .font(.caption)
                     .foregroundStyle(CelinkTheme.inkMuted)
                 Spacer()
-                Text(formatAmount(totalSent))
+                Text("− \(formatAmount(totalSent))")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(CelinkTheme.ink)
+            }
+            HStack {
+                Text("출금 금액")
+                    .font(.caption)
+                    .foregroundStyle(CelinkTheme.inkMuted)
+                Spacer()
+                Text(totalWithdrawn > 0 ? "− \(formatAmount(totalWithdrawn))" : formatAmount(0))
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(CelinkTheme.ink)
             }
             Divider()
-            HStack {
-                Text("현재 장부 금액")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(CelinkTheme.ink)
-                Spacer()
-                Text(formatAmount(currentLedgerAmount))
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(CelinkTheme.primaryDeep)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("현재 장부 금액")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(CelinkTheme.ink)
+                    Spacer()
+                    Text(formatAmount(currentLedgerAmount))
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(CelinkTheme.primaryDeep)
+                }
+                Text(
+                    "\(formatAmount(totalReceived)) − \(formatAmount(totalSent)) − \(formatAmount(totalWithdrawn)) = \(formatAmount(max(0, netBeforeWithdraw - totalWithdrawn)))"
+                )
+                .font(.caption2)
+                .foregroundStyle(CelinkTheme.inkMuted)
+                .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(14)

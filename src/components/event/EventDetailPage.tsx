@@ -5,9 +5,12 @@ import { useMemo } from "react";
 import { EventCoverHero } from "@/components/ui/EventCoverImage";
 import {
   EVENT_TYPE_LABEL,
+  PAST_PARTICIPATION_LABEL,
+  pastParticipationStatus,
   RSVP_STATUS_LABEL,
   RSVP_STATUS_STYLE,
 } from "@/lib/constants/event";
+import { PastParticipationPicker } from "@/components/event/PastParticipationPicker";
 import {
   useCreatedEvents,
   useEventDetail,
@@ -40,7 +43,7 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
     return { ...detail, summary, guestbook, photos };
   }, [detail, eventId, interaction, owned]);
 
-  if (!resolved) {
+  if (!resolved || !detail) {
     return (
       <div className="flex min-h-[50dvh] items-center justify-center text-ink-muted">
         이벤트를 찾을 수 없습니다
@@ -49,10 +52,14 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
   }
 
   const { summary } = resolved;
+  const baseRsvpStatus = detail.summary.rsvpStatus;
+  const isPastEvent = !summary.isUpcoming;
+  const pastParticipation = pastParticipationStatus(summary.rsvpStatus);
   const rsvpStyle = RSVP_STATUS_STYLE[summary.rsvpStatus];
   const dDay = formatDDay(summary.date);
   const showDDay = summary.isUpcoming && dDay !== "종료";
-  const pendingHighlight = !owned && summary.rsvpStatus === "pending";
+  const pendingHighlight =
+    !owned && !isPastEvent && summary.rsvpStatus === "pending";
 
   return (
     <div className="relative pb-36">
@@ -90,9 +97,19 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
       <div className="space-y-8 pt-6">
         <div className="rounded-2xl border border-blush bg-surface p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${rsvpStyle.bg} ${rsvpStyle.text}`}>
-              {RSVP_STATUS_LABEL[summary.rsvpStatus]}
-            </span>
+            {!owned && isPastEvent && pastParticipation ? (
+              <span
+                className={`rounded-md px-2 py-0.5 text-xs font-medium ${rsvpStyle.bg} ${rsvpStyle.text}`}
+              >
+                {PAST_PARTICIPATION_LABEL[pastParticipation]}
+              </span>
+            ) : !owned && isPastEvent ? null : (
+              <span
+                className={`rounded-md px-2 py-0.5 text-xs font-medium ${rsvpStyle.bg} ${rsvpStyle.text}`}
+              >
+                {RSVP_STATUS_LABEL[summary.rsvpStatus]}
+              </span>
+            )}
             <span className="text-xs text-ink-muted">
               {owned ? "내가 주최" : `${summary.hostName}님의 초대`}
             </span>
@@ -113,6 +130,11 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
                 <ActionLink href={`/events/${eventId}/ledger`} title="장부" subtitle="축하금" small />
               </div>
             </>
+          ) : isPastEvent ? (
+            <PastParticipationPicker
+              eventId={eventId}
+              defaultStatus={baseRsvpStatus}
+            />
           ) : (
             <>
               <Link
@@ -185,6 +207,8 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
               <CtaLink href={`/events/${eventId}/ledger`} label="장부 확인하기" primary />
               <CtaLink href={`/events/${eventId}/participants`} label="참여자 관리하기" />
             </>
+          ) : isPastEvent ? (
+            <CtaLink href={`/events/${eventId}/gift`} label="축하하기" primary />
           ) : (
             <>
               <CtaLink href={`/events/${eventId}/rsvp`} label="참여여부 회신" primary />
