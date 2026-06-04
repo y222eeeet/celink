@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
+import { EventCoverHero } from "@/components/ui/EventCoverImage";
 import {
   EVENT_TYPE_LABEL,
   RSVP_STATUS_LABEL,
@@ -54,16 +54,13 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
 
   return (
     <div className="relative pb-36">
-      <div className="relative -mx-5 h-[min(52vw,300px)] min-h-[200px] w-auto">
-        <Image
+      <div className="relative -mx-5">
+        <EventCoverHero
           src={summary.coverImage}
-          alt=""
-          fill
-          className="object-cover"
           priority
-          sizes="512px"
+          className="h-[min(52vw,300px)] min-h-[200px] w-full"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute left-5 top-12">
           <Link href="/" className="rounded-full bg-white/90 px-3 py-1.5 text-sm font-medium text-primary-deep">
             ←

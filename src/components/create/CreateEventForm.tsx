@@ -169,8 +169,8 @@ export function CreateEventForm() {
 
         {step === "cover" ? (
           <div className="space-y-3">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-              <Image src={cover} alt="" fill className="object-cover" sizes="400px" />
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-cream-dark">
+              <Image src={cover} alt="" fill className="object-cover object-center" sizes="400px" />
             </div>
             <label className="inline-block cursor-pointer rounded-xl border border-blush bg-surface px-4 py-2 text-sm font-medium text-primary-deep">
               사진 업로드

@@ -1,5 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
+import {
+  EventCoverFeatured,
+  EventCoverThumbnail,
+} from "@/components/ui/EventCoverImage";
 import {
   EVENT_TYPE_LABEL,
   RSVP_STATUS_LABEL,
@@ -24,17 +27,8 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
         href={`/events/${event.id}`}
         className="group relative block overflow-hidden rounded-2xl bg-stone-900 shadow-lg shadow-stone-900/10"
       >
-        <div className="relative aspect-[4/5] w-full">
-          <Image
-            src={event.coverImage}
-            alt={event.title}
-            fill
-            className="object-cover opacity-90 transition duration-300 group-hover:scale-[1.02] group-hover:opacity-100"
-            sizes="(max-width: 512px) 100vw, 400px"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-stone-900/90 via-stone-900/30 to-transparent" />
-        </div>
+        <EventCoverFeatured src={event.coverImage} alt={event.title} priority />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/90 via-stone-900/30 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-5 text-white">
           {showDDay && (
             <span className="mb-2 inline-block rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium backdrop-blur-sm">
@@ -60,17 +54,13 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
     return (
       <Link
         href={`/events/${event.id}`}
-        className="flex gap-3 rounded-xl border border-blush/60 bg-white/60 p-3 transition hover:bg-white"
+        className="flex items-start gap-3 rounded-xl border border-blush/60 bg-white/60 p-3 transition hover:bg-white"
       >
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg">
-          <Image
-            src={event.coverImage}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="64px"
-          />
-        </div>
+        <EventCoverThumbnail
+          src={event.coverImage}
+          className="w-16"
+          sizes="64px"
+        />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-ink">{event.title}</p>
           <p className="mt-0.5 truncate text-xs text-ink-muted">
@@ -89,21 +79,15 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
   return (
     <Link
       href={`/events/${event.id}`}
-      className="flex overflow-hidden rounded-2xl border border-blush/60 bg-white shadow-sm transition hover:shadow-md"
+      className="flex items-start overflow-hidden rounded-2xl border border-blush/60 bg-white shadow-sm transition hover:shadow-md"
     >
-      <div className="relative h-28 w-28 shrink-0">
-        <Image
-          src={event.coverImage}
-          alt=""
-          fill
-          className="object-cover"
-          sizes="112px"
-        />
-        {showDDay && (
+      <div className="relative shrink-0">
+        <EventCoverThumbnail src={event.coverImage} className="w-28" sizes="112px" />
+        {showDDay ? (
           <span className="absolute left-2 top-2 rounded-md bg-cream/95 px-1.5 py-0.5 text-[10px] font-semibold text-rose-deep backdrop-blur-sm">
             {dDay}
           </span>
-        )}
+        ) : null}
       </div>
       <div className="flex min-w-0 flex-1 flex-col justify-center px-4 py-3">
         <p className="text-[11px] font-medium uppercase tracking-wider text-rose">

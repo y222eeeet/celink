@@ -37,7 +37,7 @@ export function RecentPhotos({ photos }: RecentPhotosProps) {
               src={photo.imageUrl}
               alt={`${photo.eventTitle} 사진`}
               fill
-              className="object-cover transition group-hover:opacity-90"
+              className="object-cover object-center transition group-hover:opacity-90"
               sizes="25vw"
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-stone-900/70 to-transparent p-1.5 opacity-0 transition group-hover:opacity-100">

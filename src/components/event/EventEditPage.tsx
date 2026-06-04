@@ -73,8 +73,8 @@ export function EventEditPage({ eventId }: { eventId: string }) {
       <BackLink href={`/events/${eventId}`} />
       <h1 className="font-serif text-2xl text-ink">이벤트 수정</h1>
 
-      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-        <Image src={coverImage} alt="" fill className="object-cover" sizes="400px" />
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-cream-dark">
+        <Image src={coverImage} alt="" fill className="object-cover object-center" sizes="400px" />
       </div>
 
       <Field label="제목" value={title} onChange={setTitle} />
