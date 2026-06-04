@@ -29,7 +29,7 @@ export function UpcomingSection({ events }: UpcomingSectionProps) {
         <ul className="mt-3 space-y-2">
           {rest.slice(0, 2).map((event) => (
             <li key={event.id}>
-              <EventCard event={event} variant="compact" />
+              <EventCard event={event} />
             </li>
           ))}
         </ul>

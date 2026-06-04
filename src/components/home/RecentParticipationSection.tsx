@@ -30,7 +30,7 @@ export function RecentParticipationSection({
       <ul className="space-y-2">
         {recent.map((event) => (
           <li key={event.id}>
-            <EventCard event={event} variant="compact" />
+            <EventCard event={event} />
           </li>
         ))}
       </ul>

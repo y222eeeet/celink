@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
+  EventCoverCardSide,
   EventCoverFeatured,
-  EventCoverThumbnail,
 } from "@/components/ui/EventCoverImage";
 import {
   EVENT_TYPE_LABEL,
@@ -13,7 +13,7 @@ import { formatDDay, formatEventDate } from "@/lib/utils/date";
 
 interface EventCardProps {
   event: EventSummary;
-  variant?: "default" | "compact" | "featured";
+  variant?: "default" | "featured";
 }
 
 export function EventCard({ event, variant = "default" }: EventCardProps) {
@@ -50,39 +50,13 @@ export function EventCard({ event, variant = "default" }: EventCardProps) {
     );
   }
 
-  if (variant === "compact") {
-    return (
-      <Link
-        href={`/events/${event.id}`}
-        className="flex items-start gap-3 rounded-xl border border-blush/60 bg-white/60 p-3 transition hover:bg-white"
-      >
-        <EventCoverThumbnail
-          src={event.coverImage}
-          className="w-16"
-          sizes="64px"
-        />
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-ink">{event.title}</p>
-          <p className="mt-0.5 truncate text-xs text-ink-muted">
-            {formatEventDate(event.date)}
-          </p>
-          <span
-            className={`mt-1.5 inline-block rounded-md px-1.5 py-0.5 text-[10px] font-medium ${rsvpStyle.bg} ${rsvpStyle.text}`}
-          >
-            {RSVP_STATUS_LABEL[event.rsvpStatus]}
-          </span>
-        </div>
-      </Link>
-    );
-  }
-
   return (
     <Link
       href={`/events/${event.id}`}
-      className="flex items-start overflow-hidden rounded-2xl border border-blush/60 bg-white shadow-sm transition hover:shadow-md"
+      className="flex items-stretch overflow-hidden rounded-2xl border border-blush/60 bg-white shadow-sm transition hover:shadow-md"
     >
-      <div className="relative shrink-0">
-        <EventCoverThumbnail src={event.coverImage} className="w-28" sizes="112px" />
+      <div className="relative flex w-28 shrink-0 self-stretch">
+        <EventCoverCardSide src={event.coverImage} sizes="112px" />
         {showDDay ? (
           <span className="absolute left-2 top-2 rounded-md bg-cream/95 px-1.5 py-0.5 text-[10px] font-semibold text-rose-deep backdrop-blur-sm">
             {dDay}

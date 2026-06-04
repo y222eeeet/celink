@@ -9,6 +9,30 @@ interface EventCoverImageProps {
   priority?: boolean;
 }
 
+/** 리스트 카드 좌측 — 카드 높이에 맞춰 이미지가 꽉 차도록 */
+export function EventCoverCardSide({
+  src,
+  alt = "",
+  sizes = "112px",
+  priority,
+  className = "h-full w-full",
+}: EventCoverImageProps & { className?: string }) {
+  return (
+    <div
+      className={`relative min-h-28 overflow-hidden bg-cream-dark ${className}`}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={sizes}
+        priority={priority}
+        className={coverImageClass}
+      />
+    </div>
+  );
+}
+
 /** 리스트·프로필 카드용 정방형 썸네일 */
 export function EventCoverThumbnail({
   src,
