@@ -2,13 +2,18 @@ const DAY_MS = 1000 * 60 * 60 * 24;
 
 export function formatEventDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString("ko-KR", {
+  const currentYear = new Date().getFullYear();
+  const options: Intl.DateTimeFormatOptions = {
     month: "long",
     day: "numeric",
     weekday: "short",
     hour: "2-digit",
     minute: "2-digit",
-  });
+  };
+  if (d.getFullYear() < currentYear) {
+    options.year = "numeric";
+  }
+  return d.toLocaleDateString("ko-KR", options);
 }
 
 export function formatTime(iso: string): string {

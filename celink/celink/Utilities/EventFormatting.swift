@@ -9,9 +9,27 @@ enum EventFormatting {
     }
 
     static func eventDate(_ date: Date) -> String {
-        date.formatted(
+        let calendar = Calendar.current
+        let eventYear = calendar.component(.year, from: date)
+        let currentYear = calendar.component(.year, from: Date())
+        let locale = Locale(identifier: "ko_KR")
+
+        if eventYear < currentYear {
+            return date.formatted(
+                .dateTime
+                    .locale(locale)
+                    .year(.defaultDigits)
+                    .month(.wide)
+                    .day()
+                    .weekday(.short)
+                    .hour()
+                    .minute()
+            )
+        }
+
+        return date.formatted(
             .dateTime
-                .locale(Locale(identifier: "ko_KR"))
+                .locale(locale)
                 .month(.wide)
                 .day()
                 .weekday(.short)
