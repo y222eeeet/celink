@@ -34,6 +34,8 @@ export interface GuestbookEntry {
   id: string;
   authorName: string;
   content: string;
+  /** 주최자 AI 아바타 이모티콘 (지우의 생일파티 전용) */
+  stickerId?: string | null;
   isPrivate: boolean;
   createdAt: string;
 }
@@ -67,6 +69,8 @@ export interface PhotoComment {
   id: string;
   authorName: string;
   content: string;
+  /** 주최자 AI 아바타 이모티콘 (지우의 생일파티 전용) */
+  stickerId?: string | null;
   createdAt: string;
 }
 

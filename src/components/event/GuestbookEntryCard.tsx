@@ -4,6 +4,7 @@ import {
   guestbookAuthorLabel,
   guestbookEntryContent,
 } from "@/lib/utils/guestbook";
+import { HostEmojiMessageBody } from "@/components/ui/HostEmojiMessageBody";
 import type { GuestbookEntry } from "@/lib/types";
 
 export function GuestbookEntryCard({
@@ -43,13 +44,14 @@ export function GuestbookEntryCard({
           {formatRelative(entry.createdAt)}
         </p>
       </div>
-      <p
-        className={`mt-2 text-sm ${
-          canView ? "text-ink" : "text-ink-muted"
-        }`}
-      >
-        {content}
-      </p>
+      {canView ? (
+        <HostEmojiMessageBody
+          content={entry.content}
+          stickerId={entry.stickerId}
+        />
+      ) : (
+        <p className="mt-2 text-sm text-ink-muted">{content}</p>
+      )}
     </div>
   );
 }

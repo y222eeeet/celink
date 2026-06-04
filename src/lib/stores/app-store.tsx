@@ -109,7 +109,8 @@ interface InteractionContextValue {
     authorName: string,
     content: string,
     isPrivate: boolean,
-    isOwned: boolean
+    isOwned: boolean,
+    stickerId?: string | null
   ) => GuestbookEntry | null;
   photoURLs: (
     eventId: string,
@@ -124,7 +125,12 @@ interface InteractionContextValue {
   isLiked: (url: string) => boolean;
   comments: (url: string) => PhotoComment[];
   toggleLike: (url: string) => void;
-  addComment: (url: string, content: string, authorName?: string) => void;
+  addComment: (
+    url: string,
+    content: string,
+    authorName?: string,
+    stickerId?: string | null
+  ) => void;
   ledgerEntries: (eventId: string) => CelebrationLedgerEntry[];
   participantEntries: (eventId: string) => InvitedParticipantEntry[];
   totalReceivedAmount: () => number;
@@ -362,13 +368,21 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
       },
-      addGuestbookEntry: (eventId, authorName, content, isPrivate, isOwned) => {
+      addGuestbookEntry: (
+        eventId,
+        authorName,
+        content,
+        isPrivate,
+        isOwned,
+        stickerId
+      ) => {
         const trimmed = content.trim();
-        if (!trimmed) return null;
+        if (!trimmed && !stickerId) return null;
         const entry: GuestbookEntry = {
           id: uid("gb"),
           authorName: authorName.trim() || MOCK_USER.name,
           content: trimmed,
+          stickerId: stickerId ?? null,
           isPrivate,
           createdAt: toLocalISOString(new Date()),
         };
@@ -450,9 +464,9 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           };
         });
       },
-      addComment: (url, content, authorName) => {
+      addComment: (url, content, authorName, stickerId) => {
         const trimmed = content.trim();
-        if (!trimmed) return;
+        if (!trimmed && !stickerId) return;
         setPhotoSocialState((prev) => {
           const state = prev[url] ?? {
             likeCount: 0,
@@ -463,6 +477,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
             id: uid("pc"),
             authorName: authorName?.trim() || MOCK_USER.name,
             content: trimmed,
+            stickerId: stickerId ?? null,
             createdAt: toLocalISOString(new Date()),
           };
           return {

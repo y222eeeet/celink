@@ -11,17 +11,30 @@ import {
 } from "@/lib/stores/app-store";
 import { useNavigationGuard } from "@/lib/stores/navigation-guard";
 import { formatRelative } from "@/lib/utils/date";
+import {
+  HostEmojiPickerButton,
+  HostEmojiPickerPanel,
+} from "@/components/ui/HostEmojiPicker";
+import { HostEmojiMessageBody } from "@/components/ui/HostEmojiMessageBody";
+import { HostEmojiSticker } from "@/components/ui/HostEmojiSticker";
+import { isHostEmojiEvent } from "@/lib/constants/host-emoji";
 
 export function EventAlbumPage({ eventId }: { eventId: string }) {
   const detail = useEventDetail(eventId);
   const { isOwned } = useCreatedEvents();
   const interaction = useInteractionStore();
   const owned = isOwned(eventId);
+  const emojiEnabled = isHostEmojiEvent(eventId);
 
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedStickerId, setSelectedStickerId] = useState<string | null>(
+    null
+  );
 
-  useNavigationGuard(`album-comment-${eventId}`, commentText.trim().length > 0);
+  const hasDraft = commentText.trim().length > 0 || selectedStickerId !== null;
+  useNavigationGuard(`album-comment-${eventId}`, hasDraft);
 
   if (!detail) return <p className="p-5 text-ink-muted">이벤트를 찾을 수 없습니다</p>;
 
@@ -38,9 +51,19 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
   };
 
   const submitComment = () => {
-    if (!selectedUrl || !commentText.trim()) return;
-    interaction.addComment(selectedUrl, commentText, commentAuthorName);
+    if (!selectedUrl) return;
+    const canSubmit =
+      commentText.trim().length > 0 || selectedStickerId !== null;
+    if (!canSubmit) return;
+    interaction.addComment(
+      selectedUrl,
+      commentText,
+      commentAuthorName,
+      selectedStickerId
+    );
     setCommentText("");
+    setSelectedStickerId(null);
+    setPickerOpen(false);
   };
 
   return (
@@ -95,7 +118,12 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
           <div className="flex items-center justify-between px-5 py-4">
             <button
               type="button"
-              onClick={() => setSelectedUrl(null)}
+              onClick={() => {
+                setSelectedUrl(null);
+                setCommentText("");
+                setSelectedStickerId(null);
+                setPickerOpen(false);
+              }}
               className="text-sm text-primary-deep"
             >
               닫기
@@ -163,34 +191,71 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
                       <span className="font-semibold text-ink">{c.authorName}</span>
                       <span className="text-ink-muted">{formatRelative(c.createdAt)}</span>
                     </div>
-                    <p className="mt-1 text-sm text-ink">{c.content}</p>
+                    <HostEmojiMessageBody
+                      content={c.content}
+                      stickerId={c.stickerId}
+                    />
                   </div>
                 ))
               )}
             </div>
           </div>
 
-          <div className="flex gap-2 border-t border-blush bg-cream px-5 py-3 pb-safe">
-            <input
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="댓글을 입력해 주세요"
-              className="flex-1 rounded-lg border border-blush bg-surface px-3 py-2 text-sm"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  submitComment();
+          <div className="space-y-2 border-t border-blush bg-cream px-5 py-3 pb-safe">
+            {emojiEnabled && pickerOpen ? (
+              <HostEmojiPickerPanel
+                open={pickerOpen}
+                selectedId={selectedStickerId}
+                onSelect={(stickerId) => {
+                  setSelectedStickerId(stickerId);
+                  setPickerOpen(false);
+                }}
+                onClose={() => setPickerOpen(false)}
+              />
+            ) : null}
+            {emojiEnabled && selectedStickerId ? (
+              <div className="flex items-center gap-2 rounded-lg bg-cream-dark/55 px-3 py-2">
+                <HostEmojiSticker stickerId={selectedStickerId} size={32} />
+                <span className="flex-1 text-xs text-ink-muted">선택한 이모티콘</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedStickerId(null)}
+                  className="text-xs text-primary-deep"
+                >
+                  제거
+                </button>
+              </div>
+            ) : null}
+            <div className="flex gap-2">
+              <input
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="댓글을 입력해 주세요"
+                className="min-w-0 flex-1 rounded-lg border border-blush bg-surface px-3 py-2 text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    submitComment();
+                  }
+                }}
+              />
+              {emojiEnabled ? (
+                <HostEmojiPickerButton
+                  active={pickerOpen}
+                  onClick={() => setPickerOpen((open) => !open)}
+                />
+              ) : null}
+              <button
+                type="button"
+                onClick={submitComment}
+                disabled={
+                  commentText.trim().length === 0 && selectedStickerId === null
                 }
-              }}
-            />
-            <button
-              type="button"
-              onClick={submitComment}
-              disabled={!commentText.trim()}
-              className="rounded-lg bg-primary-deep px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
-            >
-              등록
-            </button>
+                className="rounded-lg bg-primary-deep px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+              >
+                등록
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
