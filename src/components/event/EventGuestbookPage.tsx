@@ -81,7 +81,7 @@ export function EventGuestbookPage({ eventId }: { eventId: string }) {
             checked={isPrivate}
             onChange={(e) => setIsPrivate(e.target.checked)}
           />
-          비공개로 남기기 (주최자와 본인만 보기)
+          비공개로 남기기
         </label>
         <PrimaryButton
           title="등록하기"
