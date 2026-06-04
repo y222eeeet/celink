@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   title: "Celink",
   description: "관계 기반 이벤트 초대 및 아카이빙",
   applicationName: "Celink",
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    apple: [{ url: "/favicon.png", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {
