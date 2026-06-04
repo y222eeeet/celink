@@ -53,7 +53,7 @@ export function HostEmojiPickerPanel({
           닫기
         </button>
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
         {HOST_EMOJI_STICKERS.map((sticker) => (
           <button
             key={sticker.id}

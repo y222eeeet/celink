@@ -14,6 +14,11 @@ export const HOST_EMOJI_STICKERS: HostEmojiSticker[] = [
     imageUrl: "/images/emojis/owned-birthday-1/cheer.png",
   },
   {
+    id: "laugh",
+    label: "ㅋㅋ",
+    imageUrl: "/images/emojis/owned-birthday-1/laugh.png",
+  },
+  {
     id: "crying",
     label: "눈물",
     imageUrl: "/images/emojis/owned-birthday-1/crying.png",
