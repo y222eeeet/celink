@@ -12,6 +12,7 @@ import type { CreateEventStep, EditableScheduleItem, EventType } from "@/lib/typ
 import { toLocalISOString, toFiveMinuteInterval } from "@/lib/utils/date-rounding";
 import { formatEventDate } from "@/lib/utils/date";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { ScheduleList } from "@/components/ui/ScheduleList";
 
 const STEPS: CreateEventStep[] = ["type", "basics", "cover", "schedule", "preview"];
 
@@ -250,13 +251,15 @@ export function CreateEventForm() {
         ) : null}
 
         {step === "preview" ? (
-          <div className="space-y-3 rounded-2xl border border-blush bg-surface p-4">
-            <p className="text-xs text-primary">{EVENT_TYPE_LABEL[selectedType]}</p>
-            <p className="font-serif text-xl text-ink">{title}</p>
-            <p className="text-sm text-ink-muted">{formatEventDate(date)}</p>
-            <p className="text-sm text-ink-muted">{location}</p>
-            <p className="text-sm text-ink">{description || "설명 없음"}</p>
-            <p className="text-xs text-ink-muted">식순 {scheduleItems.length}개</p>
+          <div className="space-y-4">
+            <div className="space-y-3 rounded-2xl border border-blush bg-surface p-4">
+              <p className="text-xs text-primary">{EVENT_TYPE_LABEL[selectedType]}</p>
+              <p className="font-serif text-xl text-ink">{title}</p>
+              <p className="text-sm text-ink-muted">{formatEventDate(date)}</p>
+              <p className="text-sm text-ink-muted">{location}</p>
+              <p className="text-sm text-ink">{description || "설명 없음"}</p>
+            </div>
+            <ScheduleList items={scheduleItems} />
           </div>
         ) : null}
       </div>

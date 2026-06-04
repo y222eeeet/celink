@@ -13,7 +13,8 @@ import {
   useEventDetail,
   useInteractionStore,
 } from "@/lib/stores/app-store";
-import { formatDDay, formatEventDate, formatTime } from "@/lib/utils/date";
+import { formatDDay, formatEventDate } from "@/lib/utils/date";
+import { ScheduleList } from "@/components/ui/ScheduleList";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
 export function EventDetailPage({ eventId }: { eventId: string }) {
@@ -135,22 +136,7 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
         </div>
 
         {resolved.schedule.length > 0 ? (
-          <section className="space-y-3">
-            <SectionHeader title="식순" trailing={`${resolved.schedule.length}개`} />
-            <div className="space-y-2">
-              {resolved.schedule.map((item) => (
-                <div key={item.id} className="flex gap-3 rounded-xl border border-blush bg-surface p-3">
-                  <span className="shrink-0 rounded-lg bg-primary/15 px-2 py-1 text-xs font-semibold text-primary-deep">
-                    {formatTime(item.time)}
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium text-ink">{item.title}</p>
-                    {item.note ? <p className="text-xs text-ink-muted">{item.note}</p> : null}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+          <ScheduleList items={resolved.schedule} />
         ) : null}
 
         {resolved.guestbook.length > 0 ? (

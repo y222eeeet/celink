@@ -13,11 +13,8 @@ export function formatEventDate(iso: string): string {
 
 export function formatTime(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleTimeString("ko-KR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 export function formatRelative(iso: string): string {
