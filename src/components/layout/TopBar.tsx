@@ -30,7 +30,7 @@ export function TopBar() {
           <button
             type="button"
             onClick={handleLogoClick}
-            className="relative h-7 w-[108px] shrink-0"
+            className="relative h-8 w-[100px] shrink-0"
             aria-label="Celink 홈으로"
           >
             <Image
