@@ -18,9 +18,15 @@ export function ProfileContent() {
     rsvpStatus: interaction.rsvpStatus(event.id, event.rsvpStatus),
   });
 
-  const joinedEvents = MOCK_INVITED_EVENTS.filter(
-    (e) => !isOwned(e.id)
-  ).map(resolveRSVP);
+  const sortByEventDateDesc = (events: EventSummary[]) =>
+    [...events].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+  const ownedEvents = sortByEventDateDesc(ownedSummaries);
+  const joinedEvents = sortByEventDateDesc(
+    MOCK_INVITED_EVENTS.filter((e) => !isOwned(e.id)).map(resolveRSVP)
+  );
 
   const ledgerAmount = interaction.currentLedgerAmount();
 
