@@ -60,14 +60,14 @@ export function ProfileContent() {
         </div>
       </div>
 
-      {ownedSummaries.length > 0 ? (
+      {ownedEvents.length > 0 ? (
         <section className="mt-8 space-y-3">
           <SectionHeader
             title="내가 만든 이벤트"
-            trailing={`${ownedSummaries.length}개`}
+            trailing={`${ownedEvents.length}개`}
           />
           <div className="space-y-3">
-            {ownedSummaries.map((event) => (
+            {ownedEvents.map((event) => (
               <EventCard key={event.id} event={event} variant="default" />
             ))}
           </div>

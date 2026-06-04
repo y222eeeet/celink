@@ -297,16 +297,18 @@ export function CreateEventForm() {
           <button
             type="button"
             onClick={goBack}
-            className="flex-1 rounded-xl border border-blush py-3 text-sm font-semibold text-ink"
+            className="min-w-0 flex-1 whitespace-nowrap rounded-xl border border-blush py-3 text-sm font-semibold text-ink"
           >
             이전
           </button>
         ) : null}
-        {step === "preview" ? (
-          <PrimaryButton title="발행하기" onClick={publish} />
-        ) : (
-          <PrimaryButton title="다음" disabled={!canNext} onClick={goNext} />
-        )}
+        <div className={stepIndex > 0 ? "min-w-0 flex-1" : "w-full"}>
+          {step === "preview" ? (
+            <PrimaryButton title="발행하기" onClick={publish} />
+          ) : (
+            <PrimaryButton title="다음" disabled={!canNext} onClick={goNext} />
+          )}
+        </div>
       </div>
     </div>
   );
