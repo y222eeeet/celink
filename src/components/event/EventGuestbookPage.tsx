@@ -4,13 +4,13 @@ import { useState } from "react";
 import { EventSubpageHeader } from "@/components/ui/EventSubpageHeader";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { BackLink } from "@/components/ui/BackLink";
+import { GuestbookEntryCard } from "@/components/event/GuestbookEntryCard";
 import { MOCK_USER } from "@/lib/mock/events";
 import {
   useCreatedEvents,
   useEventDetail,
   useInteractionStore,
 } from "@/lib/stores/app-store";
-import { formatRelative } from "@/lib/utils/date";
 
 export function EventGuestbookPage({ eventId }: { eventId: string }) {
   const detail = useEventDetail(eventId);
@@ -51,15 +51,12 @@ export function EventGuestbookPage({ eventId }: { eventId: string }) {
           <p className="text-sm text-ink-muted">아직 메시지가 없어요</p>
         ) : (
           entries.map((entry) => (
-            <div key={entry.id} className="rounded-xl border border-blush bg-surface p-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-ink">{entry.authorName}</p>
-                <p className="text-xs text-ink-muted">{formatRelative(entry.createdAt)}</p>
-              </div>
-              <p className="mt-2 text-sm text-ink">
-                {entry.isPrivate ? "비공개 메시지" : entry.content}
-              </p>
-            </div>
+            <GuestbookEntryCard
+              key={entry.id}
+              entry={entry}
+              viewerName={MOCK_USER.name}
+              isOwner={owned}
+            />
           ))
         )}
       </div>
@@ -84,7 +81,7 @@ export function EventGuestbookPage({ eventId }: { eventId: string }) {
             checked={isPrivate}
             onChange={(e) => setIsPrivate(e.target.checked)}
           />
-          비공개로 남기기
+          비공개로 남기기 (주최자와 본인만 보기)
         </label>
         <PrimaryButton
           title="등록하기"

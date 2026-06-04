@@ -16,6 +16,8 @@ import {
 import { formatDDay, formatEventDate } from "@/lib/utils/date";
 import { ScheduleList } from "@/components/ui/ScheduleList";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { GuestbookEntryCard } from "@/components/event/GuestbookEntryCard";
+import { MOCK_USER } from "@/lib/mock/events";
 
 export function EventDetailPage({ eventId }: { eventId: string }) {
   const detail = useEventDetail(eventId);
@@ -145,12 +147,13 @@ export function EventDetailPage({ eventId }: { eventId: string }) {
               </Link>
             </div>
             {resolved.guestbook.slice(0, 3).map((entry) => (
-              <div key={entry.id} className="rounded-xl border border-blush bg-surface p-3">
-                <p className="text-xs font-semibold text-ink">{entry.authorName}</p>
-                <p className="mt-1 text-sm text-ink">
-                  {entry.isPrivate ? "비공개 메시지" : entry.content}
-                </p>
-              </div>
+              <GuestbookEntryCard
+                key={entry.id}
+                entry={entry}
+                viewerName={MOCK_USER.name}
+                isOwner={owned}
+                compact
+              />
             ))}
           </section>
         ) : null}
