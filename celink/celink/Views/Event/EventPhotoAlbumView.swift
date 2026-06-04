@@ -167,6 +167,13 @@ private struct PhotoFeedSheet: View {
         interactionStore.comments(for: photoURL)
     }
 
+    private var commentAuthorName: String {
+        if isOwnerMode, let hostName = interactionStore.eventDetail(id: eventId)?.summary.hostName {
+            return hostName
+        }
+        return MockData.userName
+    }
+
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
@@ -301,7 +308,11 @@ private struct PhotoFeedSheet: View {
                             }
 
                         Button("등록") {
-                            interactionStore.addComment(photoURL: photoURL, content: commentText)
+                            interactionStore.addComment(
+                                photoURL: photoURL,
+                                content: commentText,
+                                authorName: commentAuthorName
+                            )
                             commentText = ""
                         }
                         .font(.subheadline.weight(.semibold))
@@ -317,9 +328,11 @@ private struct PhotoFeedSheet: View {
                         .disabled(commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                     .padding(.horizontal, CelinkLayout.horizontalPadding)
-                    .padding(.vertical, 10)
+                    .padding(.top, 10)
+                    .padding(.bottom, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(CelinkTheme.background)
+                    .safeAreaPadding(.bottom)
                 }
                 .frame(width: sheetWidth, height: geometry.size.height, alignment: .top)
             }

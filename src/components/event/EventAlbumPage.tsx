@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { EventSubpageHeader } from "@/components/ui/EventSubpageHeader";
 import { BackLink } from "@/components/ui/BackLink";
+import { MOCK_USER } from "@/lib/mock/events";
 import {
   useCreatedEvents,
   useEventDetail,
@@ -22,6 +23,7 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
   if (!detail) return <p className="p-5 text-ink-muted">이벤트를 찾을 수 없습니다</p>;
 
   const photos = interaction.photoURLs(eventId, detail.photoURLs, owned);
+  const commentAuthorName = owned ? detail.summary.hostName : MOCK_USER.name;
 
   const upload = (file: File) => {
     const reader = new FileReader();
@@ -30,6 +32,12 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
       interaction.addPhoto(eventId, url, owned);
     };
     reader.readAsDataURL(file);
+  };
+
+  const submitComment = () => {
+    if (!selectedUrl || !commentText.trim()) return;
+    interaction.addComment(selectedUrl, commentText, commentAuthorName);
+    setCommentText("");
   };
 
   return (
@@ -57,7 +65,7 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
       />
 
       {photos.length === 0 ? (
-        <p className="text-center text-sm text-ink-muted py-12">아직 공유된 사진이 없어요</p>
+        <p className="py-12 text-center text-sm text-ink-muted">아직 공유된 사진이 없어요</p>
       ) : (
         <div className="grid grid-cols-3 gap-1.5">
           {photos.map((url) => (
@@ -80,15 +88,20 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
       )}
 
       {selectedUrl ? (
-        <div className="fixed inset-0 z-50 flex flex-col bg-cream">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-cream">
           <div className="flex items-center justify-between px-5 py-4">
-            <button type="button" onClick={() => setSelectedUrl(null)} className="text-sm text-primary-deep">
+            <button
+              type="button"
+              onClick={() => setSelectedUrl(null)}
+              className="text-sm text-primary-deep"
+            >
               닫기
             </button>
           </div>
+
           <div className="flex-1 overflow-y-auto">
             <div className="px-5 pt-2">
-              <div className="relative mx-auto w-full max-w-[calc(100%-0px)] overflow-hidden rounded-xl">
+              <div className="relative mx-auto w-full overflow-hidden rounded-xl">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={selectedUrl}
@@ -97,6 +110,7 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
                 />
               </div>
             </div>
+
             <div className="mt-3 flex gap-4 px-5 py-3">
               <button
                 type="button"
@@ -110,6 +124,7 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
                 💬 {interaction.comments(selectedUrl).length}
               </span>
             </div>
+
             {owned ? (
               <div className="flex gap-2 px-5 pb-2">
                 <button
@@ -133,32 +148,41 @@ export function EventAlbumPage({ eventId }: { eventId: string }) {
                 </button>
               </div>
             ) : null}
+
             <div className="space-y-2 px-5 pb-4">
               <p className="text-sm font-semibold text-ink">댓글</p>
-              {interaction.comments(selectedUrl).map((c) => (
-                <div key={c.id} className="rounded-lg bg-cream-dark/55 p-3">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-semibold text-ink">{c.authorName}</span>
-                    <span className="text-ink-muted">{formatRelative(c.createdAt)}</span>
+              {interaction.comments(selectedUrl).length === 0 ? (
+                <p className="text-sm text-ink-muted">첫 댓글을 남겨보세요.</p>
+              ) : (
+                interaction.comments(selectedUrl).map((c) => (
+                  <div key={c.id} className="rounded-lg bg-cream-dark/55 p-3">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-semibold text-ink">{c.authorName}</span>
+                      <span className="text-ink-muted">{formatRelative(c.createdAt)}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-ink">{c.content}</p>
                   </div>
-                  <p className="mt-1 text-sm text-ink">{c.content}</p>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
-          <div className="flex gap-2 border-t border-blush px-5 py-3">
+
+          <div className="flex gap-2 border-t border-blush bg-cream px-5 py-3 pb-safe">
             <input
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="댓글을 입력해 주세요"
               className="flex-1 rounded-lg border border-blush bg-surface px-3 py-2 text-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  submitComment();
+                }
+              }}
             />
             <button
               type="button"
-              onClick={() => {
-                interaction.addComment(selectedUrl, commentText);
-                setCommentText("");
-              }}
+              onClick={submitComment}
               disabled={!commentText.trim()}
               className="rounded-lg bg-primary-deep px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
             >

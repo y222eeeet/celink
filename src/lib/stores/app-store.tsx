@@ -124,7 +124,7 @@ interface InteractionContextValue {
   isLiked: (url: string) => boolean;
   comments: (url: string) => PhotoComment[];
   toggleLike: (url: string) => void;
-  addComment: (url: string, content: string) => void;
+  addComment: (url: string, content: string, authorName?: string) => void;
   ledgerEntries: (eventId: string) => CelebrationLedgerEntry[];
   participantEntries: (eventId: string) => InvitedParticipantEntry[];
   totalReceivedAmount: () => number;
@@ -450,7 +450,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           };
         });
       },
-      addComment: (url, content) => {
+      addComment: (url, content, authorName) => {
         const trimmed = content.trim();
         if (!trimmed) return;
         setPhotoSocialState((prev) => {
@@ -461,7 +461,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           };
           const comment: PhotoComment = {
             id: uid("pc"),
-            authorName: MOCK_USER.name,
+            authorName: authorName?.trim() || MOCK_USER.name,
             content: trimmed,
             createdAt: toLocalISOString(new Date()),
           };

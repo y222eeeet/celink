@@ -257,15 +257,18 @@ final class EventInteractionStore {
         photoSocialState[key] = state
     }
 
-    func addComment(photoURL: URL, content: String) {
+    func addComment(photoURL: URL, content: String, authorName: String? = nil) {
         let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
         let key = socialKey(for: photoURL)
         var state = socialState(for: photoURL)
+        let name = authorName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+            ? authorName!.trimmingCharacters(in: .whitespacesAndNewlines)
+            : MockData.userName
         let comment = PhotoComment(
             id: "pc-\(UUID().uuidString.prefix(8))",
-            authorName: MockData.userName,
+            authorName: name,
             content: trimmed,
             createdAt: Date()
         )
